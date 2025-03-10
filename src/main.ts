@@ -1,10 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.services';
+import { GlobalExceptionFilter } from './common/exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   let db = false
+  app.useGlobalFilters(new GlobalExceptionFilter());
   const prismaService = app.get(PrismaService);
   try {
     await prismaService.$connect();
