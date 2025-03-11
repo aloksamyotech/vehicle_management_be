@@ -15,12 +15,12 @@ import { CreateUserDto, UpdateUserDto } from './user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
+  @Post('save')
   async createUser(@Body() body: CreateUserDto) {
     return this.userService.createUser(body);
   }
 
-  @Get()
+  @Get('fetch')
   async getUsers() {
     return this.userService.getUsers();
   }
@@ -30,12 +30,12 @@ export class UserController {
     return this.userService.login(body.email, body.password);
   }
 
-  @Get(':id')
+  @Get('getById/:id')
   async getUserById(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.getUserById(id);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -43,7 +43,7 @@ export class UserController {
     return this.userService.updateUser(id, updateUserDto);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   async removeUser(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.removeUser(id);
   }

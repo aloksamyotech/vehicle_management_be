@@ -6,6 +6,7 @@ datasource db {
   provider = "postgresql"
   url      =  env("DATABASE_URL")
 }
+
 model User { 
   id        Int @id @default(autoincrement())
   email     String  @unique
@@ -19,3 +20,38 @@ model User {
   isActive Boolean @default(true)
   isDeleted Boolean @default(false) 
 }
+
+model VehicleGroup { 
+  id       Int @id @default(autoincrement())
+  name     String  @unique
+  description   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  isDeleted Boolean @default(false) 
+
+  vehicles Vehicle[]
+}
+
+model Vehicle {
+  id                 Int      @id @default(autoincrement())
+  registrationNo     String   @unique
+  vehicleName        String
+  model              String
+  chasisNo           String   @unique
+  engineNo           String   @unique
+  manufacturedBy     String
+  vehicleType        String
+  vehicleColor       String?
+  registrationExpiry DateTime
+  isActive           Boolean  @default(true)
+  image              String?
+  doc                String?
+  isDeleted Boolean @default(false) 
+
+  vehicleGroupId    Int 
+  vehicleGroup      VehicleGroup @relation(fields: [vehicleGroupId], references: [id])
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now())
+}
+

@@ -17,7 +17,9 @@ export class UserService {
   ) {}
 
   async getUsers() {
-    return await this.prisma.user.findMany();
+    return await this.prisma.user.findMany({
+      where: { isDeleted: false }, 
+    });
   }
 
   async createUser(userData: CreateUserDto) {
@@ -65,7 +67,7 @@ export class UserService {
 
   async getUserById(id: number) {
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: { id ,  isDeleted: false  }
     });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found.`);
