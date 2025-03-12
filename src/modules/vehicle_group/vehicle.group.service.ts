@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
+import { Prisma } from '@prisma/client';
 import { CreateVehicleGroupDto, UpdateVehicleGroupDto } from './vehicle.group.dto';
 
 @Injectable()

@@ -4,11 +4,12 @@ import {
   Get,
   Param,
   Post,
+  Patch,
   Delete,
   ParseIntPipe,
 } from '@nestjs/common';
 import { VehicleService } from './vehicle.service';
-import { CreateVehicleDto } from './vehicle.dto';
+import { CreateVehicleDto , UpdateVehicleDto} from './vehicle.dto';
 
 @Controller('vehicle')
 export class VehicleController {
@@ -27,6 +28,14 @@ export class VehicleController {
   @Get('getById/:id')
   async getById(@Param('id', ParseIntPipe) id: number) {
     return await this.vehicleService.getById(id);
+  }
+
+  @Patch('update/:id')
+  async updateVehicle(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateVehicleDto: UpdateVehicleDto,
+  ) {
+    return this.vehicleService.updateVehicle(id, updateVehicleDto);
   }
 
   @Delete('delete/:id')
