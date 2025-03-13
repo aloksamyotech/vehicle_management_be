@@ -30,13 +30,13 @@ export class FuelController {
     return await this.fuelService.getById(id);
   }
 
-  // @Patch('update/:id')
-  // async update(
-  //   @Param('id', ParseIntPipe) id: number,
-  //   @Body() updateDto: UpdateFuelDto,
-  // ) {
-  //   return this.fuelService.update(id, updateDto);
-  // }
+  @Patch('update/:id')
+  async updateFuel(
+  @Param('id', ParseIntPipe) id: number,
+  @Body() updateDto: UpdateFuelDto
+  ) {
+  return this.fuelService.updateFuel(id, updateDto);
+  }
 
   @Delete('delete/:id')
   async removeFuel(@Param('id', ParseIntPipe) id: number) {

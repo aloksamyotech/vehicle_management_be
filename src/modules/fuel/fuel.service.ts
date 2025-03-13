@@ -1,11 +1,11 @@
 import {
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
+  NotFoundException,BadRequestException
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
-import { CreateFuelDto } from './fuel.dto';
+import { CreateFuelDto , UpdateFuelDto} from './fuel.dto';
 
 @Injectable()
 export class FuelService {
@@ -42,6 +42,45 @@ export class FuelService {
       });
     }
   
+  async updateFuel(id: number, updateDto: UpdateFuelDto) {
+  const existingFuel = await this.prisma.fuel.findUnique({ where: { id } });
+  if (!existingFuel) {
+  throw new NotFoundException(`Fuel record with ID ${id} not found.`);
+  }
+
+    if (updateDto.vehicleId) {
+    const vehicleExists = await this.prisma.vehicle.findUnique({
+    where: { id: updateDto.vehicleId },
+    });
+    if (!vehicleExists) {
+    throw new BadRequestException(`Vehicle with ID ${updateDto.vehicleId} not found.`);
+    }
+    }
+    
+    if (updateDto.driverId) {
+      const driverExists = await this.prisma.driver.findUnique({
+          where: { id: updateDto.driverId },
+          });
+          if (!driverExists) {
+            throw new BadRequestException(`Driver with ID ${updateDto.driverId} not found.`);
+          }
+        }
+    
+      return await this.prisma.fuel.update({
+          where: { id },
+          data: {
+            vehicleId: updateDto.vehicleId,
+            driverId: updateDto.driverId,
+            fillDate: updateDto.fillDate,
+            quantity: updateDto.quantity,
+            odometerReading: updateDto.odometerReading,
+            amount: updateDto.amount,
+            comments: updateDto.comments,
+          },
+          include: { vehicle: true ,driver: true },
+        });
+    }
+    
     async removeFuel(id: number) {
       try {
         return await this.prisma.fuel.delete({
