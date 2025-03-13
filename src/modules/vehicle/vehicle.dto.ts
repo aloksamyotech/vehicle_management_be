@@ -56,10 +56,6 @@ import {
     @IsString()
     doc?: string;
   
-    @IsBoolean()
-    @IsOptional()
-    isDeleted?: boolean;
-  
     @IsInt()
     @IsNotEmpty()
     vehicleGroupId: number;

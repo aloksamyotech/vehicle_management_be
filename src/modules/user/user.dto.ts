@@ -26,10 +26,6 @@ export class CreateUserDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  isDeleted?: boolean;
 }
 
 export class UpdateUserDto {

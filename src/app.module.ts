@@ -12,8 +12,11 @@ import { CustomerModule } from './modules/customer/customer.module';
 import { PartsModule } from './modules/partsInventory/parts.module';
 import { ReminderModule } from './modules/reminder/reminder.module';
 import { FuelModule } from './modules/fuel/fuel.module';
+import { IncomeExpenseModule } from './modules/incomeExpense/income.module';
+import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 @Module({
-  imports: [TestModule, UserModule,VehicleGroupModule , VehicleModule , DriverModule , CustomerModule , PartsModule, ReminderModule, FuelModule],
+  imports: [TestModule, UserModule,VehicleGroupModule , VehicleModule , DriverModule , CustomerModule , PartsModule, ReminderModule,
+     FuelModule, IncomeExpenseModule, MaintenanceModule],
   controllers: [AppController],
   providers: [AppService, {
     provide: APP_INTERCEPTOR,

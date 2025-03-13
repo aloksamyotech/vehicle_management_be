@@ -41,10 +41,6 @@ export class CreateDriverDto {
   @IsEnum(CustomStatus)
   @IsOptional()
   status?: CustomStatus; 
-
-  @IsOptional()
-  @IsBoolean()
-  isDeleted?: boolean;
 }
 
 export class UpdateDriverDto {

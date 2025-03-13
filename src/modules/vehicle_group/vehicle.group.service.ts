@@ -31,7 +31,7 @@ export class VehicleGroupService {
   }
 
   async getGroupById(id: number) {
-    const group = await this.prisma.vehicleGroup.findUnique({
+    const group = await this.prisma.vehicleGroup.findFirst({
       where: { id ,  isDeleted: false  }
     });
     if (!group) {

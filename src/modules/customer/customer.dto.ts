@@ -21,10 +21,6 @@ export class CreateCustomerDto {
   @IsEnum(CustomStatus)
   @IsOptional()
   status?: CustomStatus;
-
-  @IsBoolean()
-  @IsOptional()
-  isDeleted?: boolean;
 }
 
 export class UpdateCustomerDto {
