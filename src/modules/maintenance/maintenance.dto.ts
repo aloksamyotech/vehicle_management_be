@@ -70,8 +70,4 @@ export class UpdateMaintenanceDto {
   @IsOptional()
   @IsString()
   status?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isDeleted?: boolean;
 }

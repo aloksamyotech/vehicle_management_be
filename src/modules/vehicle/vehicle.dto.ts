@@ -110,10 +110,6 @@ export class UpdateVehicleDto {
   doc?: string;
 
   @IsOptional()
-  @IsBoolean()
-  isDeleted?: boolean;
-
-  @IsOptional()
   @IsInt()
   vehicleGroupId?: number; 
 }

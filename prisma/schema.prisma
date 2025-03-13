@@ -151,8 +151,8 @@ model Booking {
   tripType         String
   tripStartDate    DateTime
   tripEndDate      DateTime
-  tripStartLoc     DateTime
-  tripEndLoc       DateTime
+  tripStartLoc     String
+  tripEndLoc       String
   totalKm          Float
   totalAmt         Float
   tripStatus       String

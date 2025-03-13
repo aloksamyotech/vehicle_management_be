@@ -8,10 +8,6 @@ export class CreateVehicleGroupDto {
   @IsOptional()
   @IsString()
   description?: string;
-
-  @IsBoolean()
-  @IsOptional()
-  isDeleted?: boolean;
 }
 
 export class UpdateVehicleGroupDto {
@@ -22,8 +18,4 @@ export class UpdateVehicleGroupDto {
   @IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isDeleted?: boolean;
 }

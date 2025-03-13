@@ -34,8 +34,4 @@ export class UpdatePartsDto {
   @IsOptional()
   @IsEnum(CustomStatus)
   status?: CustomStatus; 
-
-  @IsOptional()
-  @IsBoolean()
-  isDeleted?: boolean;
 }

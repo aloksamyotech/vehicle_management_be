@@ -38,9 +38,5 @@ export class UpdateIncomeExpenseDto {
   @IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isDeleted?: boolean;
 }
 
