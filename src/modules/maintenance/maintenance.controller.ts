@@ -11,7 +11,7 @@ import {
 import { MaintenanceService } from './maintenance.service';
 import { CreateMaintenanceDto, UpdateMaintenanceDto } from './maintenance.dto';
 
-@Controller('maintenance')
+@Controller('api/maintenance')
 export class MaintenanceController {
   constructor(private readonly maintenanceService: MaintenanceService) {}
 

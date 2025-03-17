@@ -11,7 +11,7 @@ import {
 import { ReminderService } from './reminder.service';
 import { CreateReminderDto, UpdateReminderDto } from './reminder.dto';
 
-@Controller('reminder')
+@Controller('api/reminder')
 export class ReminderController {
   constructor(private readonly reminderService: ReminderService) {}
 

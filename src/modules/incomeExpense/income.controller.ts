@@ -11,7 +11,7 @@ import {
 import { IncomeService } from './income.service';
 import { CreateIncomeExpenseDto, UpdateIncomeExpenseDto } from './income.dto';
 
-@Controller('income-expense')
+@Controller('api/income-expense')
 export class IncomeController {
   constructor(private readonly incomeService: IncomeService) {}
 

@@ -11,7 +11,7 @@ import {
 import { FuelService } from './fuel.service';
 import { CreateFuelDto, UpdateFuelDto } from './fuel.dto';
 
-@Controller('fuel')
+@Controller('api/fuel')
 export class FuelController {
   constructor(private readonly fuelService: FuelService) {}
 

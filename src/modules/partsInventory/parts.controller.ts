@@ -11,7 +11,7 @@ import {
 import { PartsService } from './parts.service';
 import { CreatePartsDto, UpdatePartsDto } from './parts.dto';
 
-@Controller('parts')
+@Controller('api/parts')
 export class PartsController {
   constructor(private readonly partsService: PartsService) {}
 

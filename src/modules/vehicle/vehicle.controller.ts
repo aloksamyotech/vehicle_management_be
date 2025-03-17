@@ -11,7 +11,7 @@ import {
 import { VehicleService } from './vehicle.service';
 import { CreateVehicleDto , UpdateVehicleDto} from './vehicle.dto';
 
-@Controller('vehicle')
+@Controller('api/vehicle')
 export class VehicleController {
   constructor(private readonly vehicleService: VehicleService) {}
 

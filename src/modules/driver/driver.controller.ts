@@ -11,7 +11,7 @@ import {
 import { DriverService } from './driver.service';
 import { CreateDriverDto , UpdateDriverDto } from './driver.dto';
 
-@Controller('driver')
+@Controller('api/driver')
 export class DriverController {
   constructor(private readonly driverService: DriverService) {}
 

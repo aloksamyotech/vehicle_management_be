@@ -11,7 +11,7 @@ import {
 import { VehicleGroupService } from './vehicle.group.service';
 import { CreateVehicleGroupDto, UpdateVehicleGroupDto } from './vehicle.group.dto';
 
-@Controller('vehicle-group')
+@Controller('api/vehicle-group')
 export class VehicleGroupController {
   constructor(private readonly vehicleGroupService: VehicleGroupService) {}
 

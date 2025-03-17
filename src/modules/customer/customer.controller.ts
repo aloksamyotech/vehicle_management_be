@@ -11,7 +11,7 @@ import {
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto , UpdateCustomerDto } from './customer.dto';
 
-@Controller('customer')
+@Controller('api/customer')
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
@@ -30,14 +30,13 @@ export class CustomerController {
     return await this.customerService.getById(id);
   }
 
-  
-    @Patch('update/:id')
-    async update(
-      @Param('id', ParseIntPipe) id: number,
-      @Body() updateDto: UpdateCustomerDto,
-    ) {
-      return this.customerService.update(id, updateDto);
-    }
+  @Patch('update/:id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateCustomerDto,
+  ) {
+    return this.customerService.update(id, updateDto);
+  }
 
   @Delete('delete/:id')
   async removeCustomer(@Param('id', ParseIntPipe) id: number) {

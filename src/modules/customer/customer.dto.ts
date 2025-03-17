@@ -17,10 +17,6 @@ export class CreateCustomerDto {
   @IsString()
   @IsNotEmpty()
   address: string;
-
-  @IsEnum(CustomStatus)
-  @IsOptional()
-  status?: CustomStatus;
 }
 
 export class UpdateCustomerDto {
