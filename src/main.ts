@@ -15,7 +15,7 @@ async function bootstrap() {
     console.error('❌ Failed to connect to the database:', error);
   }
 
-  const port = process.env.PORT ?? 7600;
+  const port = process.env.PORT ?? 3000;
   await app.listen(port);
   console.log(`🚀 Server running on port ${port}`);
   db ? console.log('✅ Database connected successfully') : console.error('❌ Failed to connect to the database:');
