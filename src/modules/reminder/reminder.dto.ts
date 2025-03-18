@@ -1,8 +1,8 @@
-import { IsInt, IsOptional, IsString, IsDate , IsBoolean} from 'class-validator';
+import { IsInt, IsOptional, IsString, IsDateString} from 'class-validator';
 
 export class CreateReminderDto {
-  @IsDate()
-  reminderDate: Date;
+  @IsDateString()
+  reminderDate: string;
 
   @IsString()
   message?: string;
@@ -13,8 +13,8 @@ export class CreateReminderDto {
 
 export class UpdateReminderDto {
   @IsOptional()
-  @IsDate()
-  reminderDate: Date;
+  @IsDateString()
+  reminderDate: string;
 
   @IsOptional()
   @IsString()

@@ -3,7 +3,7 @@ import {
     IsBoolean,
     IsOptional,
     IsInt,
-    IsDate,
+    IsDateString,
     IsNotEmpty,
   } from 'class-validator';
   
@@ -40,9 +40,9 @@ import {
     @IsString()
     vehicleColor?: string;
   
-    @IsDate()
     @IsNotEmpty()
-    registrationExpiry: Date;
+    @IsDateString()
+    registrationExpiry: string;
   
     @IsBoolean()
     @IsOptional()
@@ -94,8 +94,8 @@ export class UpdateVehicleDto {
   vehicleColor?: string;
 
   @IsOptional()
-  @IsDate()
-  registrationExpiry?: Date;
+  @IsDateString()
+  registrationExpiry?: string;
 
   @IsOptional()
   @IsBoolean()
