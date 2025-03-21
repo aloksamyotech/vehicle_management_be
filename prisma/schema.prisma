@@ -102,19 +102,6 @@ model Customer {
   bookings Booking[]
 }
 
-model PartsInventory {
-  id             Int      @id @default(autoincrement())
-  name           String
-  description    String?
-  stock          Int
-  status         CustomStatus @default(Active) 
-  isDeleted      Boolean  @default(false) 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  maintenanceEntries Maintenance[]
-}
-
 model Fuel {
   id              Int      @id @default(autoincrement())
   vehicleId       Int
@@ -161,6 +148,20 @@ model Booking {
   updatedAt        DateTime @updatedAt
 }
 
+model PartsInventory {
+  id             Int      @id @default(autoincrement())
+  name           String
+  description    String?
+  stock          Int
+  status         CustomStatus @default(Active) 
+  isDeleted      Boolean  @default(false) 
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  maintenanceEntries MaintenanceParts[] @relation("PartsInventoryToMaintenanceParts")
+}
+
+
 model Maintenance {
   id               Int @id @default(autoincrement())
   vehicleId        Int
@@ -170,13 +171,23 @@ model Maintenance {
   details          String?
   totalCost        Float
   vendorName       String
-  partsInventoryId Int
-  partsInventory   PartsInventory @relation(fields: [partsInventoryId], references: [id], onDelete: Cascade)
-  quantity         Int
   status           String
   isDeleted        Boolean  @default(false) 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  parts            MaintenanceParts[]
+}
+
+model MaintenanceParts {
+  id               Int @id @default(autoincrement())
+  maintenanceId    Int
+  maintenance      Maintenance @relation(fields: [maintenanceId], references: [id], onDelete: Cascade)
+  
+  partsInventoryId Int
+  partsInventory   PartsInventory @relation(fields: [partsInventoryId], references: [id], onDelete: Cascade, name: "PartsInventoryToMaintenanceParts")
+
+  quantity         Int
 }
 
 model IncomeExpense {
@@ -191,5 +202,3 @@ model IncomeExpense {
   updatedAt     DateTime @default(now())
   isDeleted     Boolean @default(false) 
 }
-
-

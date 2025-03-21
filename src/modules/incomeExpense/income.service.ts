@@ -6,6 +6,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
 import { CreateIncomeExpenseDto, UpdateIncomeExpenseDto } from './income.dto';
+import { messages } from 'src/common/constant';
 
 @Injectable()
 export class IncomeService {
@@ -16,6 +17,7 @@ export class IncomeService {
   async getAll() {
     return await this.prisma.incomeExpense.findMany({
       where: { isDeleted: false }, 
+      orderBy: { createdAt: 'desc' } ,
       include: {
         vehicle: true,
       },
@@ -29,7 +31,7 @@ export class IncomeService {
       });
     }
     catch(error){
-      throw new InternalServerErrorException('Error while creating income expense');
+      throw new InternalServerErrorException(messages.data_add_failed);
     }
   }
 
@@ -41,7 +43,7 @@ export class IncomeService {
       },
     });
     if (!result) {
-      throw new NotFoundException(`Income expense with ID ${id} not found.`);
+      throw new NotFoundException(messages.data_not_found);
     }
     return result;
   }
@@ -51,7 +53,7 @@ export class IncomeService {
         where: { id },
       });
       if (!existingIncome) {
-        throw new NotFoundException('Income not found');
+        throw new NotFoundException(messages.data_not_found);
       }
       return await this.prisma.incomeExpense.update({
         where: { id },
@@ -71,7 +73,7 @@ export class IncomeService {
         data: { isDeleted: true },
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to delete income expense.');
+      throw new InternalServerErrorException(messages.data_deletion_failed);
     }
   }
   }

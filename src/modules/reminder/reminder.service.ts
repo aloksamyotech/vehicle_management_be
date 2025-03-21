@@ -6,6 +6,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
 import { CreateReminderDto, UpdateReminderDto } from './reminder.dto';
+import { messages } from 'src/common/constant';
 
 @Injectable()
 export class ReminderService {
@@ -15,6 +16,7 @@ export class ReminderService {
 
   async getAll() {
     return await this.prisma.reminder.findMany({
+      orderBy: { createdAt: 'desc' } ,
       include: {
         vehicle: true,
       },
@@ -28,7 +30,7 @@ export class ReminderService {
       });
     }
     catch(error){
-      throw new InternalServerErrorException('Error while creating reminder');
+      throw new InternalServerErrorException(messages.data_add_failed);
     }
   }
 
@@ -40,7 +42,7 @@ export class ReminderService {
       },
     });
     if (!group) {
-      throw new NotFoundException(`Reminder with ID ${id} not found.`);
+      throw new NotFoundException(messages.data_not_found);
     }
     return group;
   }
@@ -50,7 +52,7 @@ export class ReminderService {
         where: { id },
       });
       if (!existingReminder) {
-        throw new NotFoundException('Vehicle not found');
+        throw new NotFoundException(messages.data_not_found);
       }
       return await this.prisma.reminder.update({
         where: { id },
@@ -69,7 +71,7 @@ export class ReminderService {
         where: { id },
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to delete reminder.');
+      throw new InternalServerErrorException(messages.data_deletion_failed);
     }
   }
   }

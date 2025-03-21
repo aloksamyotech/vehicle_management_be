@@ -1,15 +1,15 @@
-import { IsInt, IsOptional, IsString, IsDate, IsBoolean, IsNumber } from 'class-validator';
-
+import { IsInt, IsOptional, IsString, IsDateString, IsPositive, IsNumber } from 'class-validator';
 export class CreateIncomeExpenseDto {
   @IsInt()
   vehicleId: number;
 
-  @IsDate()
-  date: Date;
+  @IsDateString()
+  date: string;
 
   @IsString()
   type: string;
 
+  @IsPositive()
   @IsNumber()
   amount: number;
 
@@ -24,14 +24,15 @@ export class UpdateIncomeExpenseDto {
   vehicleId?: number;
 
   @IsOptional()
-  @IsDate()
-  date?: Date;
+  @IsDateString()
+  date?: string;
 
   @IsOptional()
   @IsString()
   type?: string;
 
   @IsOptional()
+  @IsPositive()
   @IsNumber()
   amount?: number;
 
