@@ -2,7 +2,7 @@ import {
   IsInt, 
   IsOptional, 
   IsPositive, 
-  IsDate, 
+  IsDateString, 
   IsNumber, 
   IsString 
 } from 'class-validator';
@@ -20,11 +20,11 @@ export class CreateBookingDto {
   @IsString()
   tripType: string;
 
-  @IsDate()
-  tripStartDate: Date;
+  @IsDateString()
+  tripStartDate: string;
 
-  @IsDate()
-  tripEndDate: Date;
+  @IsDateString()
+  tripEndDate: string;
 
   @IsString()
   tripStartLoc: string;
@@ -62,12 +62,12 @@ export class UpdateBookingDto {
   tripType?: string;
 
   @IsOptional()
-  @IsDate()
-  tripStartDate?: Date;
+  @IsDateString()
+  tripStartDate?: string;
 
   @IsOptional()
-  @IsDate()
-  tripEndDate?: Date;
+  @IsDateString()
+  tripEndDate?: string;
 
   @IsOptional()
   @IsString()

@@ -6,6 +6,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
 import { CreatePartsDto, UpdatePartsDto } from './parts.dto';
+import { messages } from 'src/common/constant';
 
 @Injectable()
 export class PartsService {
@@ -16,6 +17,7 @@ export class PartsService {
   async getAll() {
     return await this.prisma.partsInventory.findMany({
       where: { isDeleted: false }, 
+      orderBy: { createdAt: 'desc' } 
     });
   }
 
@@ -26,7 +28,7 @@ export class PartsService {
       });
     }
     catch(error){
-      throw new InternalServerErrorException('Error while creating parts inventory');
+      throw new InternalServerErrorException(messages.data_add_failed);
     }
   }
 
@@ -35,7 +37,7 @@ export class PartsService {
       where: { id ,  isDeleted: false  }
     });
     if (!group) {
-      throw new NotFoundException(`Parts inventory with ID ${id} not found.`);
+      throw new NotFoundException(messages.data_not_found);
     }
     return group;
   }
@@ -47,7 +49,7 @@ export class PartsService {
         data: updateDto,
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to update parts inventory.');
+      throw new InternalServerErrorException(messages.data_update_failed);
     }
   }
 
@@ -58,7 +60,7 @@ export class PartsService {
         data: { isDeleted: true },
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to delete parts inventory.');
+      throw new InternalServerErrorException(messages.data_deletion_failed);
     }
   }
   }

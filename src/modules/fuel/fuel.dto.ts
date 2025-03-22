@@ -1,5 +1,4 @@
-import { IsInt, IsOptional, IsPositive, IsDate, IsNumber, IsString } from 'class-validator';
-
+import { IsInt, IsOptional, IsPositive, IsDateString, IsNumber, IsString , IsBoolean} from 'class-validator';
 export class CreateFuelDto {
   @IsInt()
   vehicleId: number;
@@ -7,8 +6,8 @@ export class CreateFuelDto {
   @IsInt()
   driverId: number;
 
-  @IsDate()
-  fillDate: Date;
+  @IsDateString()
+  fillDate: string;
 
   @IsPositive()
   @IsNumber()
@@ -25,6 +24,9 @@ export class CreateFuelDto {
   @IsOptional()
   @IsString()
   comments?: string;
+
+  @IsBoolean()
+  addToExpense: boolean; 
 }
 
 export class UpdateFuelDto {
@@ -37,8 +39,8 @@ export class UpdateFuelDto {
   driverId: number;
 
   @IsOptional()
-  @IsDate()
-  fillDate: Date;
+  @IsDateString()
+  fillDate: string;
 
   @IsOptional()
   @IsPositive()

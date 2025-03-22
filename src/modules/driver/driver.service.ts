@@ -1,11 +1,12 @@
 import {
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
+  NotFoundException,ConflictException
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
 import { CreateDriverDto , UpdateDriverDto } from './driver.dto';
+import { messages } from 'src/common/constant';
 
 @Injectable()
 export class DriverService {
@@ -16,21 +17,38 @@ export class DriverService {
   async getAll() {
     return await this.prisma.driver.findMany({
       where: { isDeleted: false }, 
+      orderBy: { createdAt: 'desc' } 
     });
   }
 
   async createDriver(driverDto: CreateDriverDto) {
-    return this.prisma.driver.create({
-      data: driverDto,
-    });
-  }
+      try {
+        const existingGroup = await this.prisma.driver.findUnique({
+          where: { licenseNo: driverDto.licenseNo },
+        });
+  
+        if (existingGroup) {
+          throw new ConflictException(messages.license_no);
+        }
+        return await this.prisma.driver.create({
+          data: driverDto,
+        });
+      } catch (error) {
+        if (error instanceof ConflictException) {
+          throw error;
+        }
+        throw new InternalServerErrorException(
+         messages.data_add_failed
+        );
+      }
+    }
 
   async getById(id: number) {
     const result = await this.prisma.driver.findUnique({
       where: { id ,  isDeleted: false  }
     });
     if (!result) {
-      throw new NotFoundException(`Driver with ID ${id} not found.`);
+      throw new NotFoundException(messages.data_not_found);
     }
     return result;
   }
@@ -42,7 +60,7 @@ export class DriverService {
         data: updateDto,
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to update driver.');
+      throw new InternalServerErrorException(messages.data_update_failed);
     }
   }
 
@@ -50,10 +68,10 @@ export class DriverService {
     try {
       return await this.prisma.driver.update({
         where: { id },
-        data: { isDeleted: true },
+        data: { isDeleted: true }
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to delete driver.');
+      throw new InternalServerErrorException(messages.data_deletion_failed);
     }
   }
   }

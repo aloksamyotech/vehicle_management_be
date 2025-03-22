@@ -2,11 +2,12 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
 import { CreateVehicleDto, UpdateVehicleDto } from './vehicle.dto';
-
+import { messages } from 'src/common/constant';
 @Injectable()
 export class VehicleService {
   constructor(private readonly prisma: PrismaService) {}
@@ -14,6 +15,7 @@ export class VehicleService {
   async getAll() {
     return await this.prisma.vehicle.findMany({
       where: { isDeleted: false },
+      orderBy: { createdAt: 'desc' },
       include: {
         vehicleGroup: true,
       },
@@ -21,9 +23,45 @@ export class VehicleService {
   }
 
   async createVehicle(vehicleDto: CreateVehicleDto) {
-    return this.prisma.vehicle.create({
-      data: vehicleDto,
-    });
+    try {
+      const existingVehicles = await this.prisma.vehicle.findMany({
+        where: {
+          OR: [
+            { registrationNo: vehicleDto.registrationNo },
+            { chasisNo: vehicleDto.chasisNo },
+            { engineNo: vehicleDto.engineNo },
+          ],
+        },
+      });
+
+      let duplicateFields: string[] = [];
+
+      existingVehicles.forEach((existingVehicle) => {
+        if (existingVehicle.registrationNo === vehicleDto.registrationNo) {
+          duplicateFields.push('Registration Number');
+        }
+        if (existingVehicle.chasisNo === vehicleDto.chasisNo) {
+          duplicateFields.push('Chassis Number');
+        }
+        if (existingVehicle.engineNo === vehicleDto.engineNo) {
+          duplicateFields.push('Engine Number');
+        }
+      });
+
+      if (duplicateFields.length > 0) {
+        const errorMessage = `Already exist: ${duplicateFields.join(', ')}.`;
+        throw new ConflictException(errorMessage);
+      }
+
+      return await this.prisma.vehicle.create({
+        data: vehicleDto,
+      });
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(messages.data_add_failed);
+    }
   }
 
   async getById(id: number) {
@@ -34,7 +72,7 @@ export class VehicleService {
       },
     });
     if (!result) {
-      throw new NotFoundException(`Vehicle with ID ${id} not found.`);
+      throw new NotFoundException(messages.data_not_found);
     }
     return result;
   }
@@ -44,7 +82,7 @@ export class VehicleService {
       where: { id },
     });
     if (!existingVehicle) {
-      throw new NotFoundException('Vehicle not found');
+      throw new NotFoundException(messages.data_not_found);
     }
     return await this.prisma.vehicle.update({
       where: { id },
@@ -64,7 +102,7 @@ export class VehicleService {
         data: { isDeleted: true },
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to delete vehicle.');
+      throw new InternalServerErrorException(messages.data_deletion_failed);
     }
   }
 }

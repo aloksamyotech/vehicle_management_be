@@ -4,12 +4,12 @@ import {
   Get,
   Param,
   Post,
-  Patch,
+  Put,
   Delete,
   ParseIntPipe,
 } from '@nestjs/common';
 import { MaintenanceService } from './maintenance.service';
-import { CreateMaintenanceDto, UpdateMaintenanceDto } from './maintenance.dto';
+import { CreateMaintenanceDto, UpdateMaintenanceStatusDto } from './maintenance.dto';
 
 @Controller('api/maintenance')
 export class MaintenanceController {
@@ -30,12 +30,12 @@ export class MaintenanceController {
     return await this.maintenanceService.getById(id);
   }
 
-  @Patch('update/:id')
-  async updateMaintenance(
-  @Param('id', ParseIntPipe) id: number,
-  @Body() updateDto: UpdateMaintenanceDto
+  @Put('updateStatus/:id')
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() statusDto: UpdateMaintenanceStatusDto
   ) {
-  return this.maintenanceService.updateMaintenance(id, updateDto);
+    return this.maintenanceService.updateStatus(Number(id), statusDto);
   }
 
   @Delete('delete/:id')
