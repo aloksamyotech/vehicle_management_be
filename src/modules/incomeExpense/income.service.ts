@@ -76,4 +76,31 @@ export class IncomeService {
       throw new InternalServerErrorException(messages.data_deletion_failed);
     }
   }
+
+  async getVehicleReport(
+    vehicleId?: number,
+    startDate?: Date,
+    endDate?: Date,
+  ) {
+    return await this.prisma.incomeExpense.findMany({
+      where: {
+        isDeleted: false,
+        vehicleId: vehicleId || undefined,
+        createdAt: {
+          gte: startDate || undefined,
+          lte: endDate || undefined,
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        vehicle: { select: { id: true, vehicleName: true } },
+        createdAt: true,  
+        date: true,
+        amount: true,
+        type: true,
+        description: true
+      },
+    });
+  }
+  
   }

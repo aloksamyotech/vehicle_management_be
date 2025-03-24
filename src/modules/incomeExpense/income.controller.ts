@@ -7,6 +7,7 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { IncomeService } from './income.service';
 import { CreateIncomeExpenseDto, UpdateIncomeExpenseDto } from './income.dto';
@@ -41,5 +42,16 @@ export class IncomeController {
   @Delete('delete/:id')
   async removeIncome(@Param('id', ParseIntPipe) id: number) {
     return await this.incomeService.removeIncome(id);
+  }
+
+  @Get('/report')
+  async getVehicleReport(@Query() query: any) {
+    const { vehicleId, startDate, endDate } = query;
+
+    return this.incomeService.getVehicleReport(
+      vehicleId ? Number(vehicleId) : undefined,
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+    );
   }
 }

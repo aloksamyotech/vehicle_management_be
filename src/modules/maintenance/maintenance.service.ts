@@ -45,26 +45,48 @@ export class MaintenanceService {
   }
 
   async createMaintenance(createdto: CreateMaintenanceDto) {
-    return this.prisma.maintenance.create({
-      data: {
-        vehicleId: createdto.vehicleId,
-        startDate: createdto.startDate,
-        endDate: createdto.endDate,
-        details: createdto.details,
-        totalCost: createdto.totalCost,
-        vendorName: createdto.vendorName,
-        status: createdto.status,
-        parts: {
-          create: createdto?.parts?.map((part) => ({
-            partsInventoryId: part.partsInventoryId,
-            quantity: part.quantity,
-          })),
+    return this.prisma.$transaction(async (prisma) => {
+      const maintenance = await prisma.maintenance.create({
+        data: {
+          vehicleId: createdto.vehicleId,
+          startDate: createdto.startDate,
+          endDate: createdto.endDate,
+          details: createdto.details,
+          totalCost: createdto.totalCost,
+          vendorName: createdto.vendorName,
+          status: createdto.status,
+          parts: {
+            create: createdto?.parts?.map((part) => ({
+              partsInventoryId: part.partsInventoryId,
+              quantity: part.quantity,
+            })),
+          },
         },
-      },
-      include: { parts: true },
+        include: { parts: true },
+      });
+  
+      for (const part of createdto.parts) {
+        const partInventory = await prisma.partsInventory.findUnique({
+          where: { id: part.partsInventoryId },
+        });
+  
+        if (!partInventory || partInventory.stock < part.quantity) {
+          throw new Error(messages.data_unavailable);
+        }
+  
+        await prisma.partsInventory.update({
+          where: { id: part.partsInventoryId },
+          data: {
+            stock: {
+              decrement: part.quantity,
+            },
+          },
+        });
+      }
+      return maintenance;
     });
   }
-
+  
   async updateStatus(id: number, statusDto: UpdateMaintenanceStatusDto) {
     const { status } = statusDto;
     await this.prisma.maintenance.findUnique({ where: { id } });
