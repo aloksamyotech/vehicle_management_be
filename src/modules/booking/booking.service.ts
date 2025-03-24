@@ -6,6 +6,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
 import { CreateBookingDto , UpdateBookingDto} from './booking.dto';
+import { messages } from 'src/common/constant';
 
 @Injectable()
 export class BookingService {
@@ -16,6 +17,7 @@ export class BookingService {
   async getAll() {
     return await this.prisma.booking.findMany({
       where: { isDeleted: false }, 
+      orderBy: { createdAt: 'desc' } ,
       include: {
         vehicle: true,
         driver : true,
@@ -34,7 +36,7 @@ export class BookingService {
       },
     });
     if (!result) {
-      throw new NotFoundException(`Booking with ID ${id} not found.`);
+      throw new NotFoundException(messages.data_not_found);
     }
     return result;
   }
@@ -48,7 +50,7 @@ export class BookingService {
   async updateBooking(id: number, updateDto: UpdateBookingDto) {
   const existingBooking = await this.prisma.booking.findUnique({ where: { id } });
   if (!existingBooking) {
-  throw new NotFoundException(`Booking record with ID ${id} not found.`);
+  throw new NotFoundException(messages.data_not_found);
   }
 
     if (updateDto.vehicleId) {
@@ -56,7 +58,7 @@ export class BookingService {
     where: { id: updateDto.vehicleId },
     });
     if (!vehicleExists) {
-    throw new BadRequestException(`Vehicle with ID ${updateDto.vehicleId} not found.`);
+    throw new BadRequestException(messages.data_not_found);
     }
     }
     
@@ -65,7 +67,7 @@ export class BookingService {
           where: { id: updateDto.driverId },
           });
           if (!driverExists) {
-            throw new BadRequestException(`Driver with ID ${updateDto.driverId} not found.`);
+            throw new BadRequestException(messages.data_not_found);
           }
         }
 
@@ -74,7 +76,7 @@ export class BookingService {
               where: { id: updateDto.customerId },
               });
               if (!customerExists) {
-                throw new BadRequestException(`Customer with ID ${updateDto.customerId} not found.`);
+                throw new BadRequestException(messages.data_not_found);
               }
             }
     
@@ -104,7 +106,7 @@ export class BookingService {
           data: { isDeleted: true },
         });
       } catch (error) {
-        throw new InternalServerErrorException('Failed to delete booking record.');
+        throw new InternalServerErrorException(messages.data_deletion_failed);
       }
     }
 

@@ -1,14 +1,34 @@
-import { IsInt, IsOptional, IsString, IsDate, IsBoolean, IsPositive, IsNumber } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsDateString,
+  IsPositive,
+  IsNumber,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+class PartsDto {
+  @IsInt()
+  partsInventoryId: number;
+
+  @IsInt()
+  @IsPositive()
+  quantity: number;
+}
 
 export class CreateMaintenanceDto {
   @IsInt()
   vehicleId: number;
 
-  @IsDate()
-  startDate: Date;
+  @IsDateString()
+  startDate: string;
 
-  @IsDate()
-  endDate: Date;
+  @IsDateString()
+  endDate: string;
 
   @IsOptional()
   @IsString()
@@ -21,53 +41,17 @@ export class CreateMaintenanceDto {
   @IsString()
   vendorName: string;
 
-  @IsInt()
-  partsInventoryId: number;
-
-  @IsInt()
-  @IsPositive()
-  quantity: number;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PartsDto)
+  parts: PartsDto[];
 
   @IsString()
   status: string;
 }
 
-export class UpdateMaintenanceDto {
-  @IsOptional()
-  @IsInt()
-  vehicleId?: number;
-
-  @IsOptional()
-  @IsDate()
-  startDate?: Date;
-
-  @IsOptional()
-  @IsDate()
-  endDate?: Date;
-
-  @IsOptional()
+export class UpdateMaintenanceStatusDto {
+  @IsNotEmpty()
   @IsString()
-  details?: string;
-
-  @IsOptional()
-  @IsPositive()
-  @IsNumber()
-  totalCost?: number;
-
-  @IsOptional()
-  @IsString()
-  vendorName?: string;
-
-  @IsOptional()
-  @IsInt()
-  partsInventoryId?: number;
-
-  @IsOptional()
-  @IsInt()
-  @IsPositive()
-  quantity?: number;
-
-  @IsOptional()
-  @IsString()
-  status?: string;
+  status: string;
 }

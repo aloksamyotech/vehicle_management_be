@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.services';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { Prisma } from '@prisma/client';
 import { CryptoService } from 'src/common/crypto.service';
+import { messages } from 'src/common/constant';
 
 @Injectable()
 export class UserService {
@@ -39,7 +40,7 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException('Error while creating user');
+      throw new InternalServerErrorException(messages.data_add_failed);
     }
   }
 
@@ -70,7 +71,7 @@ export class UserService {
       where: { id ,  isDeleted: false  }
     });
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found.`);
+      throw new NotFoundException(messages.data_not_found);
     }
     return user;
   }
@@ -82,7 +83,7 @@ export class UserService {
         data: updateUserDto,
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to update user.');
+      throw new InternalServerErrorException(messages.data_update_failed);
     }
   }
 
@@ -93,7 +94,7 @@ export class UserService {
         data: { isDeleted: true },
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to delete user.');
+      throw new InternalServerErrorException(messages.data_deletion_failed);
     }
   }
 }
