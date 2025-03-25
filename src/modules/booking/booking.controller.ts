@@ -54,4 +54,15 @@ export class BookingController {
       endDate ? new Date(endDate) : undefined,
     );
   }
+
+  @Get('/driver-report')
+  async getDriverBookings(@Query() query: any) {
+    const { driverId, startDate, endDate } = query;
+
+    return this.bookingService.getDriverBookings(
+      driverId ? Number(driverId) : undefined,
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+    );
+  }
 }

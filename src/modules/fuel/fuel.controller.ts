@@ -7,6 +7,7 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { FuelService } from './fuel.service';
 import { CreateFuelDto, UpdateFuelDto } from './fuel.dto';
@@ -32,15 +33,25 @@ export class FuelController {
 
   @Patch('update/:id')
   async updateFuel(
-  @Param('id', ParseIntPipe) id: number,
-  @Body() updateDto: UpdateFuelDto
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateFuelDto,
   ) {
-  return this.fuelService.updateFuel(id, updateDto);
+    return this.fuelService.updateFuel(id, updateDto);
   }
 
   @Delete('delete/:id')
   async removeFuel(@Param('id', ParseIntPipe) id: number) {
     return await this.fuelService.removeFuel(id);
   }
-  
+
+  @Get('/report')
+  async getVehicleReport(@Query() query: any) {
+    const { vehicleId, startDate, endDate } = query;
+
+    return this.fuelService.getVehicleReport(
+      vehicleId ? Number(vehicleId) : undefined,
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+    );
+  }
 }

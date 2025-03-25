@@ -10,34 +10,31 @@ import { messages } from 'src/common/constant';
 
 @Injectable()
 export class IncomeService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getAll() {
     return await this.prisma.incomeExpense.findMany({
-      where: { isDeleted: false }, 
-      orderBy: { createdAt: 'desc' } ,
+      where: { isDeleted: false },
+      orderBy: { createdAt: 'desc' },
       include: {
         vehicle: true,
       },
     });
   }
 
-  async create(dtoData: CreateIncomeExpenseDto){
-    try{
+  async create(dtoData: CreateIncomeExpenseDto) {
+    try {
       return await this.prisma.incomeExpense.create({
         data: dtoData,
       });
-    }
-    catch(error){
+    } catch (error) {
       throw new InternalServerErrorException(messages.data_add_failed);
     }
   }
 
   async getById(id: number) {
     const result = await this.prisma.incomeExpense.findUnique({
-      where: { id ,  isDeleted: false },
+      where: { id, isDeleted: false },
       include: {
         vehicle: true,
       },
@@ -48,23 +45,22 @@ export class IncomeService {
     return result;
   }
 
-   async update(id: number, updateDto: UpdateIncomeExpenseDto) {
-      const existingIncome = await this.prisma.incomeExpense.findUnique({
-        where: { id },
-      });
-      if (!existingIncome) {
-        throw new NotFoundException(messages.data_not_found);
-      }
-      return await this.prisma.incomeExpense.update({
-        where: { id },
-        data: {
-          ...updateDto,
-          vehicleId:
-          updateDto.vehicleId ?? existingIncome.vehicleId,
-        },
-        include: { vehicle: true },
-      });
+  async update(id: number, updateDto: UpdateIncomeExpenseDto) {
+    const existingIncome = await this.prisma.incomeExpense.findUnique({
+      where: { id },
+    });
+    if (!existingIncome) {
+      throw new NotFoundException(messages.data_not_found);
     }
+    return await this.prisma.incomeExpense.update({
+      where: { id },
+      data: {
+        ...updateDto,
+        vehicleId: updateDto.vehicleId ?? existingIncome.vehicleId,
+      },
+      include: { vehicle: true },
+    });
+  }
 
   async removeIncome(id: number) {
     try {
@@ -80,13 +76,13 @@ export class IncomeService {
   async getVehicleReport(
     vehicleId?: number,
     startDate?: Date,
-    endDate?: Date,
+    endDate?: Date
   ) {
-    return await this.prisma.incomeExpense.findMany({
+    const report = await this.prisma.incomeExpense.findMany({
       where: {
         isDeleted: false,
         vehicleId: vehicleId || undefined,
-        createdAt: {
+        date: {
           gte: startDate || undefined,
           lte: endDate || undefined,
         },
@@ -94,13 +90,40 @@ export class IncomeService {
       orderBy: { createdAt: 'asc' },
       select: {
         vehicle: { select: { id: true, vehicleName: true } },
-        createdAt: true,  
+        createdAt: true,
         date: true,
         amount: true,
         type: true,
-        description: true
+        description: true,
       },
     });
-  }
   
+    if (!report.length) {
+      throw new NotFoundException(messages.data_not_found);
+    }
+  
+    let income = 0;
+    let expense = 0;
+  
+    report.forEach((item) => {
+      if (item.type === 'Income') {
+        income += item.amount;
+      } else if (item.type === 'Expense') {
+        expense += item.amount;
+      }
+    });
+  
+    const profitOrLoss = income - expense;
+    const status = profitOrLoss >= 0 ? 'Profit' : 'Loss';
+  
+    return {
+      incomeExpenseDetails: report,
+      summary: {
+        income,
+        expense,
+        profitOrLoss,
+        status,
+      },
+    };
   }
+}

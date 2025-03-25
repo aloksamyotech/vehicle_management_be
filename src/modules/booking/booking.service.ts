@@ -137,4 +137,26 @@ export class BookingService {
       },
     });
   }
+
+  async getDriverBookings(driverId?: number, startDate?: Date, endDate?: Date) {
+    return await this.prisma.booking.findMany({
+      where: {
+        isDeleted: false,
+        driverId: driverId || undefined,
+        tripStartDate: startDate ? { gte: startDate } : undefined,
+        tripEndDate: endDate ? { lte: endDate } : undefined,
+      },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        vehicle: { select: { id: true, vehicleName: true } },
+        driver: { select: { id: true, name: true } },
+        tripStartDate: true,
+        createdAt: true,
+        totalAmt: true,
+        tripStartLoc: true,
+        tripEndLoc: true,
+        totalKm: true,
+      },
+    });
+  }
 }

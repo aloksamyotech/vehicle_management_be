@@ -111,4 +111,30 @@ export class FuelService {
       throw new InternalServerErrorException(messages.data_deletion_failed);
     }
   }
+
+  async getVehicleReport (
+    vehicleId?: number,
+    startDate?: Date,
+    endDate?: Date,
+  ){
+   return await this.prisma.fuel.findMany({
+    where: {
+      vehicleId: vehicleId || undefined,
+      fillDate: {
+        gte: startDate || undefined,
+        lte: endDate || undefined,
+      },
+    },
+    orderBy: { fillDate: 'asc' },
+    select: {
+      vehicle: { select: { id: true, vehicleName: true } },
+      driver: { select: { id: true, name: true } },
+      comments: true,  
+      fillDate: true,
+      quantity: true,
+      odometerReading: true,
+      amount: true
+    },
+   });
+  }
 }
