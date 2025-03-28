@@ -68,7 +68,20 @@ export class VehicleService {
     const result = await this.prisma.vehicle.findUnique({
       where: { id, isDeleted: false },
       include: {
-        vehicleGroup: true,
+        bookings: {
+          where: { isDeleted: false },
+          include: {
+            driver: {
+              select: { name: true },
+            },
+            customer: {
+              select: { name: true },
+            },
+          },
+        },
+        incomeExpense: {
+          where: { isDeleted: false },
+        },
       },
     });
     if (!result) {
