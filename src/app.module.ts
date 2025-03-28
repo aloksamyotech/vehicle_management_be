@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TestModule } from './modules/test/test.module';
 import { UserModule } from './modules/user/user.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/response.interceptor';
@@ -15,9 +14,10 @@ import { FuelModule } from './modules/fuel/fuel.module';
 import { IncomeExpenseModule } from './modules/incomeExpense/income.module';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { BookingModule } from './modules/booking/booking.module';
+import { PaymentModule } from './modules/payment/payment.module';
 @Module({
-  imports: [TestModule, UserModule,VehicleGroupModule , VehicleModule , DriverModule , CustomerModule , PartsModule, ReminderModule,
-     FuelModule, IncomeExpenseModule, MaintenanceModule, BookingModule],
+  imports: [UserModule,VehicleGroupModule , VehicleModule , DriverModule , CustomerModule , PartsModule, ReminderModule,
+     FuelModule, IncomeExpenseModule, MaintenanceModule, BookingModule , PaymentModule],
   controllers: [AppController],
   providers: [AppService, {
     provide: APP_INTERCEPTOR,

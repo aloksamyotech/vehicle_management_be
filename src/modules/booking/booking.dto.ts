@@ -14,6 +14,7 @@ export class CreateBookingDto {
   @IsInt()
   vehicleId: number;
 
+  @IsOptional()
   @IsInt()
   driverId: number;
 
@@ -31,6 +32,12 @@ export class CreateBookingDto {
 
   @IsString()
   tripEndLoc: string;
+
+  @IsString()
+  tripStartPincode: string;
+
+  @IsString()
+  tripEndPincode: string;
 
   @IsPositive()
   @IsNumber()
@@ -76,6 +83,14 @@ export class UpdateBookingDto {
   @IsOptional()
   @IsString()
   tripEndLoc?: string;
+
+  @IsOptional()
+  @IsString()
+  tripStartPincode: string;
+  
+  @IsOptional()
+  @IsString()
+  tripEndPincode: string;
 
   @IsOptional()
   @IsPositive()
