@@ -97,13 +97,9 @@ export class MaintenanceService {
   }
 
   async removeMaintenance(id: number) {
-    try {
       return await this.prisma.maintenance.update({
         where: { id },
         data: { isDeleted: true },
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_deletion_failed);
-    }
   }
 }

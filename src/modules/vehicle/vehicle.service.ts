@@ -27,6 +27,7 @@ export class VehicleService {
       const existingVehicles = await this.prisma.vehicle.findMany({
         where: {
           OR: [
+            { vehicleName: vehicleDto.vehicleName },
             { registrationNo: vehicleDto.registrationNo },
             { chasisNo: vehicleDto.chasisNo },
             { engineNo: vehicleDto.engineNo },
@@ -37,6 +38,9 @@ export class VehicleService {
       let duplicateFields: string[] = [];
 
       existingVehicles.forEach((existingVehicle) => {
+        if (existingVehicle.vehicleName === vehicleDto.vehicleName) {
+          duplicateFields.push('Vehicle Name');
+        }
         if (existingVehicle.registrationNo === vehicleDto.registrationNo) {
           duplicateFields.push('Registration Number');
         }
@@ -109,13 +113,9 @@ export class VehicleService {
   }
 
   async removeVehicle(id: number) {
-    try {
       return await this.prisma.vehicle.update({
         where: { id },
         data: { isDeleted: true },
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_deletion_failed);
-    }
   }
 }

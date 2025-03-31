@@ -4,13 +4,18 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Patch,
   Delete,
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
-import { CreateBookingDto, UpdateBookingDto } from './booking.dto';
+import {
+  CreateBookingDto,
+  UpdateBookingDto,
+  UpdateBookingStatusDto,
+} from './booking.dto';
 
 @Controller('api/booking')
 export class BookingController {
@@ -64,5 +69,21 @@ export class BookingController {
       startDate ? new Date(startDate) : undefined,
       endDate ? new Date(endDate) : undefined,
     );
+  }
+
+  @Put('updateStatus/:id')
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateBookingStatusDto,
+  ) {
+    return this.bookingService.updateBookingStatus(id, updateDto);
+  }
+
+  @Put('updateExpense/:id')
+  async updateExpense(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateBookingDto,
+  ) {
+    return this.bookingService.updateTripExpense(id, updateDto);
   }
 }

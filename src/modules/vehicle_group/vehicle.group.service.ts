@@ -56,24 +56,16 @@ export class VehicleGroupService {
   }
 
   async update(id: number, updateGroupDto: UpdateVehicleGroupDto) {
-    try {
       return await this.prisma.vehicleGroup.update({
         where: { id },
         data: updateGroupDto,
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_update_failed);
-    }
   }
 
   async removeGroup(id: number) {
-    try {
       return await this.prisma.vehicleGroup.update({
         where: { id },
         data: { isDeleted: true },
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_deletion_failed);
-    }
   }
 }

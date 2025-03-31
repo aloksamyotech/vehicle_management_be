@@ -54,24 +54,16 @@ export class DriverService {
   }
 
  async update(id: number, updateDto: UpdateDriverDto) {
-    try {
       return await this.prisma.driver.update({
         where: { id },
         data: updateDto,
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_update_failed);
-    }
   }
 
   async removeDriver(id: number) {
-    try {
       return await this.prisma.driver.update({
         where: { id },
         data: { isDeleted: true }
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_deletion_failed);
-    }
   }
   }

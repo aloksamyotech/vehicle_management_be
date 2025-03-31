@@ -23,6 +23,7 @@ export const messages = {
     bad_request: "The request could not be processed. Please check your input.",
     fetching_failed: "Unable to retrieve data at the moment.",
     fetching_success: "Data retrieved successfully.",
+    vehicle_booking_duplicate: 'Vehicle or driver is already booked for the selected dates.',
 
     required_field: "This field is required.",
     invalid_input: "Invalid input provided. Please correct and try again.",

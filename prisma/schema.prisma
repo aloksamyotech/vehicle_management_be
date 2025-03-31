@@ -35,12 +35,11 @@ model VehicleGroup {
 model Vehicle {
   id                 Int      @id @default(autoincrement())
   registrationNo     String   @unique
-  vehicleName        String
+  vehicleName        String   @unique
   model              String
   chasisNo           String   @unique
   engineNo           String   @unique
   manufacturedBy     String
-  vehicleType        String
   vehicleColor       String?
   registrationExpiry DateTime
   isActive           Boolean  @default(true)
@@ -148,6 +147,9 @@ model Booking {
   isDeleted        Boolean  @default(false) 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  tripExpense      Float?
+  desc             String?
+  invoiceNo        String  @unique
 
   payments Payment[]
 }

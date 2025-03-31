@@ -1,8 +1,7 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
 import { CreatePaymentDto } from './payment.dto';
-import { messages } from 'src/common/constant';
 
 @Injectable()
 export class PaymentService {
@@ -16,13 +15,9 @@ export class PaymentService {
   }
 
   async create(dtoData: CreatePaymentDto) {
-    try {
       return await this.prisma.payment.create({
         data: dtoData,
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_add_failed);
-    }
   }
 
   async getPaymentsByBookingId(bookingId: number) {
@@ -35,13 +30,9 @@ export class PaymentService {
   }
 
   async removePayment(id: number) {
-    try {
       return await this.prisma.payment.update({
         where: { id },
         data: { isDeleted: true },
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_deletion_failed);
     }
-  }
 }

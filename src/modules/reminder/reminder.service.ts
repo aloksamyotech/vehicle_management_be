@@ -1,6 +1,5 @@
 import {
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
@@ -24,14 +23,9 @@ export class ReminderService {
   }
 
   async create(dtoData: CreateReminderDto){
-    try{
       return await this.prisma.reminder.create({
         data: dtoData,
       });
-    }
-    catch(error){
-      throw new InternalServerErrorException(messages.data_add_failed);
-    }
   }
 
   async getById(id: number) {
@@ -66,12 +60,8 @@ export class ReminderService {
     }
 
   async removeReminder(id: number) {
-    try {
       return await this.prisma.reminder.delete({
         where: { id },
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_deletion_failed);
-    }
   }
   }

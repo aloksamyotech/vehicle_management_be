@@ -32,10 +32,6 @@ import {
     @IsNotEmpty()
     manufacturedBy: string;
   
-    @IsString()
-    @IsNotEmpty()
-    vehicleType: string;
-  
     @IsOptional()
     @IsString()
     vehicleColor?: string;
@@ -84,10 +80,6 @@ export class UpdateVehicleDto {
   @IsOptional()
   @IsString()
   manufacturedBy?: string;
-
-  @IsOptional()
-  @IsString()
-  vehicleType?: string;
 
   @IsOptional()
   @IsString()
