@@ -51,24 +51,16 @@ export class CustomerService {
   }
 
   async update(id: number, updateDto: UpdateCustomerDto) {
-    try {
       return await this.prisma.customer.update({
         where: { id },
         data: updateDto,
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_update_failed);
-    }
   }
 
   async removeCustomer(id: number) {
-    try {
       return await this.prisma.customer.update({
         where: { id },
         data: { isDeleted: true },
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_deletion_failed);
-    }
   }
 }

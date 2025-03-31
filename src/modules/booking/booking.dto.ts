@@ -1,10 +1,10 @@
-import { 
-  IsInt, 
-  IsOptional, 
-  IsPositive, 
-  IsDateString, 
-  IsNumber, 
-  IsString 
+import {
+  IsInt,
+  IsOptional,
+  IsPositive,
+  IsDateString,
+  IsNumber,
+  IsString,
 } from 'class-validator';
 
 export class CreateBookingDto {
@@ -14,6 +14,7 @@ export class CreateBookingDto {
   @IsInt()
   vehicleId: number;
 
+  @IsOptional()
   @IsInt()
   driverId: number;
 
@@ -32,6 +33,12 @@ export class CreateBookingDto {
   @IsString()
   tripEndLoc: string;
 
+  @IsString()
+  tripStartPincode: string;
+
+  @IsString()
+  tripEndPincode: string;
+
   @IsPositive()
   @IsNumber()
   totalKm: number;
@@ -42,6 +49,13 @@ export class CreateBookingDto {
 
   @IsString()
   tripStatus: string;
+
+  @IsPositive()
+  @IsNumber()
+  tripExpense: number;
+
+  @IsString()
+  desc: string;
 }
 
 export class UpdateBookingDto {
@@ -78,6 +92,14 @@ export class UpdateBookingDto {
   tripEndLoc?: string;
 
   @IsOptional()
+  @IsString()
+  tripStartPincode: string;
+
+  @IsOptional()
+  @IsString()
+  tripEndPincode: string;
+
+  @IsOptional()
   @IsPositive()
   @IsNumber()
   totalKm?: number;
@@ -90,4 +112,17 @@ export class UpdateBookingDto {
   @IsOptional()
   @IsString()
   tripStatus?: string;
+
+  @IsOptional()
+  @IsPositive()
+  @IsNumber()
+  tripExpense: number;
+
+  @IsOptional()
+  @IsString()
+  desc: string;
+}
+export class UpdateBookingStatusDto {
+  @IsString()
+  tripStatus: string;
 }

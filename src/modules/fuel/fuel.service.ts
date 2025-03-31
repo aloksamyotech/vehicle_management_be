@@ -1,6 +1,5 @@
 import {
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -103,13 +102,9 @@ export class FuelService {
   }
 
   async removeFuel(id: number) {
-    try {
       return await this.prisma.fuel.delete({
         where: { id },
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_deletion_failed);
-    }
   }
 
   async getVehicleReport (

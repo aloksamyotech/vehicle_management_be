@@ -3,10 +3,15 @@ import {
   InternalServerErrorException,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
-import { CreateBookingDto, UpdateBookingDto } from './booking.dto';
+import {
+  CreateBookingDto,
+  UpdateBookingDto,
+  UpdateBookingStatusDto,
+} from './booking.dto';
 import { messages } from 'src/common/constant';
 
 @Injectable()
@@ -41,8 +46,48 @@ export class BookingService {
   }
 
   async createBooking(createdto: CreateBookingDto) {
+    const { vehicleId, driverId, tripStartDate, tripEndDate } = createdto;
+
+    const generateInvoiceNumber = () => {
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const randomLetters =
+        letters[Math.floor(Math.random() * letters.length)] +
+        letters[Math.floor(Math.random() * letters.length)] +
+        letters[Math.floor(Math.random() * letters.length)];
+      const randomNumbers = Math.floor(100 + Math.random() * 9000);
+      return `${randomLetters}${randomNumbers}`;
+    };
+
+    const existingBooking = await this.prisma.booking.findFirst({
+      where: {
+        OR: [
+          {
+            vehicleId,
+            AND: [
+              { tripStartDate: { lte: tripEndDate } },
+              { tripEndDate: { gte: tripStartDate } },
+            ],
+          },
+          {
+            driverId,
+            AND: [
+              { tripStartDate: { lte: tripEndDate } },
+              { tripEndDate: { gte: tripStartDate } },
+            ],
+          },
+        ],
+      },
+    });
+
+    if (existingBooking) {
+      throw new ConflictException(messages.vehicle_booking_duplicate);
+    }
+
     return await this.prisma.booking.create({
-      data: createdto,
+      data: {
+        ...createdto,
+        invoiceNo: generateInvoiceNumber(), 
+    },
     });
   }
 
@@ -158,5 +203,53 @@ export class BookingService {
         totalKm: true,
       },
     });
+  }
+
+  async updateBookingStatus(
+    bookingId: number,
+    updateDto: UpdateBookingStatusDto,
+  ) {
+    const { tripStatus } = updateDto;
+
+    const existingBooking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+    });
+
+    if (!existingBooking) {
+      throw new NotFoundException(messages.data_not_found);
+    }
+
+    const updatedBooking = await this.prisma.booking.update({
+      where: { id: bookingId },
+      data: {
+        tripStatus,
+        updatedAt: new Date(),
+      },
+    });
+
+    return updatedBooking;
+  }
+
+  async updateTripExpense(bookingId: number, updateDto: UpdateBookingDto) {
+    const { tripExpense, desc } = updateDto;
+
+    const existingBooking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+    });
+
+    if (!existingBooking) {
+      throw new NotFoundException(messages.data_not_found);
+    }
+
+    const updatedBooking = await this.prisma.booking.update({
+      where: { id: bookingId },
+      data: {
+        tripExpense: { increment: tripExpense },
+        desc: existingBooking.desc ? `${existingBooking.desc}\n${desc}` : desc,
+        updatedAt: new Date(),
+      },
+    });
+
+    return updatedBooking;
   }
 }

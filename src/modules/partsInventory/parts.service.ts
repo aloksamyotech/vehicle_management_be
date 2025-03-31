@@ -1,6 +1,5 @@
 import {
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
@@ -22,14 +21,9 @@ export class PartsService {
   }
 
   async create(dtoData: CreatePartsDto){
-    try{
       return await this.prisma.partsInventory.create({
         data: dtoData,
       });
-    }
-    catch(error){
-      throw new InternalServerErrorException(messages.data_add_failed);
-    }
   }
 
   async getGroupById(id: number) {
@@ -43,24 +37,16 @@ export class PartsService {
   }
 
   async update(id: number, updateDto: UpdatePartsDto) {
-    try {
       return await this.prisma.partsInventory.update({
         where: { id },
         data: updateDto,
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_update_failed);
-    }
   }
 
   async removeParts(id: number) {
-    try {
       return await this.prisma.partsInventory.update({
         where: { id },
         data: { isDeleted: true },
       });
-    } catch (error) {
-      throw new InternalServerErrorException(messages.data_deletion_failed);
     }
-  }
   }
