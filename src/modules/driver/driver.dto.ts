@@ -1,5 +1,13 @@
-import { IsInt, IsString, IsBoolean, IsDateString, IsOptional, IsEnum } from 'class-validator';
-import { CustomStatus } from '@prisma/client'; 
+import {
+  IsInt,
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  IsDateString,
+  IsEmail,
+} from 'class-validator';
+import { CustomStatus } from '@prisma/client';
 
 export class CreateDriverDto {
   @IsString()
@@ -7,6 +15,10 @@ export class CreateDriverDto {
 
   @IsString()
   mobileNo: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 
   @IsInt()
   age: number;
@@ -18,10 +30,10 @@ export class CreateDriverDto {
   licenseNo: string;
 
   @IsDateString()
-  licenseExpiry: string; 
-  
+  licenseExpiry: string;
+
   @IsDateString()
-  dateOfJoining: string; 
+  dateOfJoining: string;
 
   @IsInt()
   totalExp: number;
@@ -40,9 +52,14 @@ export class CreateDriverDto {
 
   @IsEnum(CustomStatus)
   @IsOptional()
-  status?: CustomStatus; 
+  status?: CustomStatus;
 }
 
+export class UpdateStatusDto {
+  @IsEnum(CustomStatus)
+  @IsNotEmpty()
+  status: CustomStatus;
+}
 export class UpdateDriverDto {
   @IsOptional()
   @IsString()
@@ -51,6 +68,10 @@ export class UpdateDriverDto {
   @IsOptional()
   @IsString()
   mobileNo?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
 
   @IsOptional()
   @IsInt()
@@ -90,5 +111,5 @@ export class UpdateDriverDto {
 
   @IsOptional()
   @IsEnum(CustomStatus)
-  status?: CustomStatus; 
+  status?: CustomStatus;
 }

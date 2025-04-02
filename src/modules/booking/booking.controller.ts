@@ -13,7 +13,7 @@ import {
 import { BookingService } from './booking.service';
 import {
   CreateBookingDto,
-  UpdateBookingDto,
+  UpdateBookingDto, 
   UpdateBookingStatusDto,
 } from './booking.dto';
 
@@ -77,13 +77,5 @@ export class BookingController {
     @Body() updateDto: UpdateBookingStatusDto,
   ) {
     return this.bookingService.updateBookingStatus(id, updateDto);
-  }
-
-  @Put('updateExpense/:id')
-  async updateExpense(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateDto: UpdateBookingDto,
-  ) {
-    return this.bookingService.updateTripExpense(id, updateDto);
   }
 }

@@ -9,12 +9,12 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   app.enableCors({
-    origin: 'http://localhost:3000', 
+    origin: '*', 
     credentials: true, 
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Authorization'
+    methods: '*',
+    allowedHeaders: '*' 
   });
-
+  
   const prismaService = app.get(PrismaService);
   try {
     await prismaService.$connect();

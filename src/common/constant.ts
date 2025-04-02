@@ -18,12 +18,15 @@ export const messages = {
     data_already_exists: "This record already exists.",
     data_unavailable: "Requested data is currently unavailable.",
     invalid_data_format: "The provided data format is incorrect.",
+    failed_email:'Failed to send email notification',
+    admin_created: 'Default admin created successfully',
 
     server_error: "An unexpected server error occurred. Please try again later.",
     bad_request: "The request could not be processed. Please check your input.",
     fetching_failed: "Unable to retrieve data at the moment.",
     fetching_success: "Data retrieved successfully.",
     vehicle_booking_duplicate: 'Vehicle or driver is already booked for the selected dates.',
+    creating_error: 'Error creating default admin',
 
     required_field: "This field is required.",
     invalid_input: "Invalid input provided. Please correct and try again.",

@@ -4,12 +4,17 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Patch,
   Delete,
   ParseIntPipe,
 } from '@nestjs/common';
 import { DriverService } from './driver.service';
-import { CreateDriverDto , UpdateDriverDto } from './driver.dto';
+import {
+  CreateDriverDto,
+  UpdateDriverDto,
+  UpdateStatusDto,
+} from './driver.dto';
 
 @Controller('api/driver')
 export class DriverController {
@@ -30,18 +35,24 @@ export class DriverController {
     return await this.driverService.getById(id);
   }
 
-  
-    @Patch('update/:id')
-    async update(
-      @Param('id', ParseIntPipe) id: number,
-      @Body() updateDto: UpdateDriverDto,
-    ) {
-      return this.driverService.update(id, updateDto);
-    }
+  @Patch('update/:id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateDriverDto,
+  ) {
+    return this.driverService.update(id, updateDto);
+  }
+
+  @Put('updateStatus/:id')
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() statusDto: UpdateStatusDto,
+  ) {
+    return this.driverService.updateStatus(Number(id), statusDto);
+  }
 
   @Delete('delete/:id')
   async removeVehicle(@Param('id', ParseIntPipe) id: number) {
     return await this.driverService.removeDriver(id);
   }
-  
 }

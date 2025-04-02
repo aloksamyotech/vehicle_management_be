@@ -49,13 +49,6 @@ export class CreateBookingDto {
 
   @IsString()
   tripStatus: string;
-
-  @IsPositive()
-  @IsNumber()
-  tripExpense: number;
-
-  @IsString()
-  desc: string;
 }
 
 export class UpdateBookingDto {
@@ -112,15 +105,6 @@ export class UpdateBookingDto {
   @IsOptional()
   @IsString()
   tripStatus?: string;
-
-  @IsOptional()
-  @IsPositive()
-  @IsNumber()
-  tripExpense: number;
-
-  @IsOptional()
-  @IsString()
-  desc: string;
 }
 export class UpdateBookingStatusDto {
   @IsString()

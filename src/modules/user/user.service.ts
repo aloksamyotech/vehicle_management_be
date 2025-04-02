@@ -97,4 +97,10 @@ export class UserService {
       throw new InternalServerErrorException(messages.data_deletion_failed);
     }
   }
+
+  async findByEmail(email: string) {
+    return await this.prisma.user.findUnique({
+      where: { email },
+    });
+  }
 }
