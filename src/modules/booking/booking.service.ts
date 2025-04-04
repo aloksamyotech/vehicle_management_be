@@ -203,23 +203,27 @@ export class BookingService {
   }
 
   async getDriverBookings(driverId?: number, startDate?: Date, endDate?: Date) {
+    const whereClause: any = {
+      isDeleted: false,
+    };
+
+    if (driverId) {
+      whereClause.driverId = driverId;
+    }
+
+    if (startDate && endDate) {
+      whereClause.tripStartDate = { gte: startDate };
+      whereClause.tripEndDate = { lte: endDate };
+    }
+
     return await this.prisma.booking.findMany({
-      where: {
-        isDeleted: false,
-        driverId: driverId || undefined,
-        tripStartDate: startDate ? { gte: startDate } : undefined,
-        tripEndDate: endDate ? { lte: endDate } : undefined,
-      },
+      where: whereClause,
       orderBy: { createdAt: 'asc' },
-      select: {
+      include: {
         vehicle: { select: { id: true, vehicleName: true } },
         driver: { select: { id: true, name: true } },
-        tripStartDate: true,
-        createdAt: true,
-        totalAmt: true,
-        tripStartLoc: true,
-        tripEndLoc: true,
-        totalKm: true,
+        customer: { select: { id: true, name: true, email: true } },
+        tripExpenses: true,
       },
     });
   }
@@ -249,3 +253,6 @@ export class BookingService {
     return updatedBooking;
   }
 }
+
+
+

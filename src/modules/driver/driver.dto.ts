@@ -4,21 +4,16 @@ import {
   IsNotEmpty,
   IsOptional,
   IsEnum,
-  IsDateString,
-  IsEmail,
+  IsDateString
 } from 'class-validator';
 import { CustomStatus } from '@prisma/client';
-
 export class CreateDriverDto {
   @IsString()
   name: string;
 
   @IsString()
-  mobileNo: string;
-
-  @IsEmail()
   @IsNotEmpty()
-  email: string;
+  mobileNo: string;
 
   @IsInt()
   age: number;
@@ -53,6 +48,13 @@ export class CreateDriverDto {
   @IsEnum(CustomStatus)
   @IsOptional()
   status?: CustomStatus;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
+  @IsString()
+  iv: string;
 }
 
 export class UpdateStatusDto {
@@ -68,10 +70,6 @@ export class UpdateDriverDto {
   @IsOptional()
   @IsString()
   mobileNo?: string;
-
-  @IsOptional()
-  @IsEmail()
-  email?: string;
 
   @IsOptional()
   @IsInt()
@@ -112,4 +110,12 @@ export class UpdateDriverDto {
   @IsOptional()
   @IsEnum(CustomStatus)
   status?: CustomStatus;
+
+  @IsOptional()
+  @IsString()
+  password?: string;
+
+  @IsOptional()
+  @IsString()
+  iv: string;
 }

@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   ConflictException,
+  UnauthorizedException
 } from '@nestjs/common';
 
 @Catch()
@@ -20,6 +21,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof ConflictException) {
       status = HttpStatus.CONFLICT;
       message = exception.message;
+    } else if (exception instanceof UnauthorizedException) {
+      status = HttpStatus.UNAUTHORIZED;
+      message = exception.message || 'Unauthorized access';
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       message = exception.getResponse();

@@ -1,6 +1,7 @@
-import { Controller, Post, Body, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { messages } from 'src/common/constant';
 
 @Controller('api/login')
 export class AuthController {
@@ -14,7 +15,7 @@ export class AuthController {
     );
     
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException(messages.invalid_credentials);
     }
 
     return this.authService.login(user);

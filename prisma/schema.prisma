@@ -71,8 +71,7 @@ model Vehicle {
 model Driver {
   id             Int      @id @default(autoincrement())
   name           String
-  email          String  @unique
-  mobileNo       String
+  mobileNo       String  @unique
   age            Int
   address        String
   licenseNo      String   @unique
@@ -86,6 +85,8 @@ model Driver {
   isDeleted      Boolean  @default(false) 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  password       String  
+  iv             String  
 
   fuelEntries  Fuel[] 
   bookings Booking[]
@@ -99,7 +100,7 @@ enum CustomStatus {
 model Customer {
   id             Int      @id @default(autoincrement())
   name           String
-  mobileNo       String
+  mobileNo       String  @unique
   email          String  @unique
   address        String
   status         CustomStatus @default(Active) 

@@ -8,10 +8,14 @@ import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
 import { CreateDriverDto, UpdateDriverDto ,UpdateStatusDto} from './driver.dto';
 import { messages } from 'src/common/constant';
+import { CryptoService } from 'src/common/crypto.service';
 
 @Injectable()
 export class DriverService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cryptoService: CryptoService,
+  ) {}
 
   async getAll() {
     return await this.prisma.driver.findMany({
@@ -29,8 +33,15 @@ export class DriverService {
       if (existingGroup) {
         throw new ConflictException(messages.license_no);
       }
+      const defaultPassword = 'driver@123'; 
+      const { encryptedText, iv } = this.cryptoService.encrypt(defaultPassword);
+
       return await this.prisma.driver.create({
-        data: driverDto,
+        data: {
+          ...driverDto,
+          password: encryptedText,
+          iv: iv,
+        },
       });
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -70,6 +81,12 @@ async updateStatus(id: number, statusDto: UpdateStatusDto) {
     return await this.prisma.driver.update({
       where: { id },
       data: { isDeleted: true },
+    });
+  }
+
+  async findByPhone(mobileNo: string) {
+    return this.prisma.driver.findUnique({
+      where: { mobileNo },
     });
   }
 }

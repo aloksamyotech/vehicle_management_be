@@ -7,5 +7,6 @@ import { FuelService } from './fuel.service';
     imports: [PrismaModule],
     controllers: [FuelController],
     providers: [FuelService],
+    exports: [FuelService]  
 })
 export class FuelModule {}

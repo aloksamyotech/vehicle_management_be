@@ -20,7 +20,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AdminInitService } from './common/admin-init.service';
 import { CryptoModule } from './common/crypto.module';
 import { AuthModule } from './modules/auth/auth.module';
-
+import { DriverAuthModule } from './modules/driver-auth/driver-auth.module';
 @Module({
   imports: [
     UserModule,
@@ -38,7 +38,8 @@ import { AuthModule } from './modules/auth/auth.module';
     BookingExpenseModule,
     PrismaModule,
     CryptoModule,
-    AuthModule
+    AuthModule,
+    DriverAuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -47,7 +48,7 @@ import { AuthModule } from './modules/auth/auth.module';
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
     },
-    AdminInitService
+    AdminInitService,
   ],
 })
 export class AppModule {}

@@ -4,8 +4,9 @@ import { PartsController } from './parts.controller';
 import { PartsService } from './parts.service';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [PartsController],
-    providers: [PartsService],
+  imports: [PrismaModule],
+  controllers: [PartsController],
+  providers: [PartsService],
+  exports: [PartsService],
 })
 export class PartsModule {}
