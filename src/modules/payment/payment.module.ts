@@ -4,8 +4,9 @@ import { PaymentController } from './payment.controller';
 import { PaymentService } from './payment.service';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [PaymentController],
-    providers: [PaymentService],
+  imports: [PrismaModule],
+  controllers: [PaymentController],
+  providers: [PaymentService],
+  exports: [PaymentService],
 })
 export class PaymentModule {}

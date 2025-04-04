@@ -13,7 +13,7 @@ import {
 import { BookingService } from './booking.service';
 import {
   CreateBookingDto,
-  UpdateBookingDto,
+  UpdateBookingDto, 
   UpdateBookingStatusDto,
 } from './booking.dto';
 
@@ -60,10 +60,12 @@ export class BookingController {
     );
   }
 
-  @Get('/driver-report')
-  async getDriverBookings(@Query() query: any) {
-    const { driverId, startDate, endDate } = query;
-
+  @Get('driver-bookings')
+  getDriverBookings(
+    @Query('driverId') driverId?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
     return this.bookingService.getDriverBookings(
       driverId ? Number(driverId) : undefined,
       startDate ? new Date(startDate) : undefined,
@@ -77,13 +79,5 @@ export class BookingController {
     @Body() updateDto: UpdateBookingStatusDto,
   ) {
     return this.bookingService.updateBookingStatus(id, updateDto);
-  }
-
-  @Put('updateExpense/:id')
-  async updateExpense(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateDto: UpdateBookingDto,
-  ) {
-    return this.bookingService.updateTripExpense(id, updateDto);
   }
 }

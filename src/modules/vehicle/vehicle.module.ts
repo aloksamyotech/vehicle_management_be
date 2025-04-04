@@ -7,5 +7,6 @@ import { VehicleController } from './vehicle.controller';
     imports: [PrismaModule],
     controllers: [VehicleController],
     providers: [VehicleService],
+    exports: [VehicleService],
 })
 export class VehicleModule {}

@@ -5,8 +5,9 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { CryptoModule } from 'src/common/crypto.module'; 
 
 @Module({
-    imports: [PrismaModule , CryptoModule],
+    imports: [PrismaModule, CryptoModule],
     controllers: [UserController],
     providers: [UserService],
+    exports: [UserService],
 })
 export class UserModule {}
