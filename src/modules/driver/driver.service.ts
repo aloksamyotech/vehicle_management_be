@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
-import { CreateDriverDto, UpdateDriverDto ,UpdateStatusDto} from './driver.dto';
+import {
+  CreateDriverDto,
+  UpdateDriverDto,
+  UpdateStatusDto,
+} from './driver.dto';
 import { messages } from 'src/common/constant';
 import { CryptoService } from 'src/common/crypto.service';
 
@@ -24,21 +28,46 @@ export class DriverService {
     });
   }
 
-  async createDriver(driverDto: CreateDriverDto) {
+  async createDriver(
+    driverDto: CreateDriverDto & { image?: string; doc?: string },
+  ) {
     try {
-      const existingGroup = await this.prisma.driver.findUnique({
-        where: { licenseNo: driverDto.licenseNo },
+      const existingDetails = await this.prisma.driver.findMany({
+        where: {
+          OR: [
+            { licenseNo: driverDto.licenseNo },
+            { mobileNo: driverDto.mobileNo },
+          ],
+        },
       });
 
-      if (existingGroup) {
-        throw new ConflictException(messages.license_no);
+      const duplicateFields: string[] = [];
+
+      existingDetails.forEach((existingDetail) => {
+        if (existingDetail.licenseNo === driverDto.licenseNo) {
+          duplicateFields.push('License No');
+        }
+        if (existingDetail.mobileNo === driverDto.mobileNo) {
+          duplicateFields.push('Mobile No');
+        }
+      });
+
+      if (duplicateFields.length > 0) {
+        const errorMessage = `Already exist: ${duplicateFields.join(', ')}.`;
+        throw new ConflictException(errorMessage);
       }
-      const defaultPassword = 'driver@123'; 
+
+      const imagePath = driverDto.image || '';
+      const docPath = driverDto.doc || '';
+
+      const defaultPassword = 'driver@123';
       const { encryptedText, iv } = this.cryptoService.encrypt(defaultPassword);
 
       return await this.prisma.driver.create({
         data: {
           ...driverDto,
+          image: imagePath,
+          doc: docPath,
           password: encryptedText,
           iv: iv,
         },
@@ -68,7 +97,7 @@ export class DriverService {
     });
   }
 
-async updateStatus(id: number, statusDto: UpdateStatusDto) {
+  async updateStatus(id: number, statusDto: UpdateStatusDto) {
     const { status } = statusDto;
     await this.prisma.driver.findUnique({ where: { id } });
     return await this.prisma.driver.update({

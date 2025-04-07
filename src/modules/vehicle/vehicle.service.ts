@@ -22,7 +22,7 @@ export class VehicleService {
     });
   }
 
-  async createVehicle(vehicleDto: CreateVehicleDto) {
+  async createVehicle(vehicleDto: CreateVehicleDto & { image?: string; doc?: string }) {
     try {
       const existingVehicles = await this.prisma.vehicle.findMany({
         where: {
@@ -58,7 +58,19 @@ export class VehicleService {
       }
 
       return await this.prisma.vehicle.create({
-        data: vehicleDto,
+        data: {
+          registrationNo: vehicleDto.registrationNo,
+          vehicleName: vehicleDto.vehicleName,
+          model: vehicleDto.model,
+          chasisNo: vehicleDto.chasisNo,
+          engineNo: vehicleDto.engineNo,
+          manufacturedBy: vehicleDto.manufacturedBy,
+          registrationExpiry: new Date(vehicleDto.registrationExpiry), 
+          vehicleColor: vehicleDto.vehicleColor,
+          image: vehicleDto.image,
+          doc: vehicleDto.doc,
+          vehicleGroupId: Number(vehicleDto.vehicleGroupId),
+        },
       });
     } catch (error) {
       if (error instanceof ConflictException) {

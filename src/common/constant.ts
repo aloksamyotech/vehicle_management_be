@@ -31,6 +31,10 @@ export const messages = {
     required_field: "This field is required.",
     invalid_input: "Invalid input provided. Please correct and try again.",
 
-    license_no: "License no. already exist",
-    email: "Email already exist"
+    email: "Email already exist",
+    license_no: 'License number already exists.',
+    mobile_no: 'Mobile number already exists.',
+    invalid_type: 'Invalid file type',
+    too_large: 'File is too large!',
+    file_success: 'File uploaded successfully!'
 };

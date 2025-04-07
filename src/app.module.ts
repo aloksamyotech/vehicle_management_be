@@ -21,6 +21,7 @@ import { AdminInitService } from './common/admin-init.service';
 import { CryptoModule } from './common/crypto.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DriverAuthModule } from './modules/driver-auth/driver-auth.module';
+import { FileModule } from './common/fileUpload/file.module';
 @Module({
   imports: [
     UserModule,
@@ -40,6 +41,7 @@ import { DriverAuthModule } from './modules/driver-auth/driver-auth.module';
     CryptoModule,
     AuthModule,
     DriverAuthModule,
+    FileModule
   ],
   controllers: [AppController],
   providers: [
