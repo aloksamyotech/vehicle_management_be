@@ -13,9 +13,12 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
-    
+
     if (user && !user.isDeleted) {
-      const decryptedPassword = this.cryptoService.decrypt(user.password, user.iv);
+      const decryptedPassword = this.cryptoService.decrypt(
+        user.password,
+        user.iv,
+      );
       if (decryptedPassword === password) {
         const { password, iv, ...result } = user;
         return result;
@@ -33,7 +36,11 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        currencySymbol: user.currencySymbol,
+        currencyCode: user.currencyCode,
+        phone: user.phone,
+        address: user.address,
       },
     };
   }
-} 
+}

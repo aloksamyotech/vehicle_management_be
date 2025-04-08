@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Booking" ALTER COLUMN "tripStartLoc" SET DATA TYPE TEXT,
+ALTER COLUMN "tripEndLoc" SET DATA TYPE TEXT;

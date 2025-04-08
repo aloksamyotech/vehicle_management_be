@@ -8,10 +8,11 @@ import {
   Delete,
   ParseIntPipe,
   Put,
+  Request
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
-@Controller('users')
+import { CreateUserDto, UpdateUserDto , UpdateCurrencyDto} from './user.dto';
+@Controller('api/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -38,5 +39,10 @@ export class UserController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.removeUser(+id);
+  }
+
+  @Patch('currency/:id')
+  async updateCurrency(@Param('id') id: string, @Body() dto: UpdateCurrencyDto) {
+    return this.userService.updateCurrency(+id, dto);
   }
 }
