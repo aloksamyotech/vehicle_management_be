@@ -12,11 +12,14 @@ import {
   UpdateBookingDto,
   UpdateBookingStatusDto,
 } from './booking.dto';
+import { NotificationService } from 'src/common/notification.service';
 import { messages } from 'src/common/constant';
-
 @Injectable()
 export class BookingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   async getAll() {
     return await this.prisma.booking.findMany({
@@ -60,6 +63,7 @@ export class BookingService {
 
     const existingBooking = await this.prisma.booking.findFirst({
       where: {
+        isDeleted: false,
         OR: [
           {
             vehicleId,
@@ -82,13 +86,28 @@ export class BookingService {
     if (existingBooking) {
       throw new ConflictException(messages.vehicle_booking_duplicate);
     }
-
-    return await this.prisma.booking.create({
+    const booking = await this.prisma.booking.create({
       data: {
         ...createdto,
-        invoiceNo: generateInvoiceNumber(), 
-    },
+        invoiceNo: generateInvoiceNumber(),
+      },
+      include: {
+        customer: true,
+        driver: true,
+        vehicle: true,
+      },
     });
+
+    try {
+      await this.notificationService.sendBookingConfirmationEmail(
+        booking.customer.email,
+        booking,
+      );
+    } catch (error) {
+      console.error(messages.failed_email, error);
+    }
+
+    return booking;
   }
 
   async updateBooking(id: number, updateDto: UpdateBookingDto) {
@@ -184,23 +203,27 @@ export class BookingService {
   }
 
   async getDriverBookings(driverId?: number, startDate?: Date, endDate?: Date) {
+    const whereClause: any = {
+      isDeleted: false,
+    };
+
+    if (driverId) {
+      whereClause.driverId = driverId;
+    }
+
+    if (startDate && endDate) {
+      whereClause.tripStartDate = { gte: startDate };
+      whereClause.tripEndDate = { lte: endDate };
+    }
+
     return await this.prisma.booking.findMany({
-      where: {
-        isDeleted: false,
-        driverId: driverId || undefined,
-        tripStartDate: startDate ? { gte: startDate } : undefined,
-        tripEndDate: endDate ? { lte: endDate } : undefined,
-      },
+      where: whereClause,
       orderBy: { createdAt: 'asc' },
-      select: {
+      include: {
         vehicle: { select: { id: true, vehicleName: true } },
         driver: { select: { id: true, name: true } },
-        tripStartDate: true,
-        createdAt: true,
-        totalAmt: true,
-        tripStartLoc: true,
-        tripEndLoc: true,
-        totalKm: true,
+        customer: { select: { id: true, name: true, email: true } },
+        tripExpenses: true,
       },
     });
   }
@@ -229,27 +252,7 @@ export class BookingService {
 
     return updatedBooking;
   }
-
-  async updateTripExpense(bookingId: number, updateDto: UpdateBookingDto) {
-    const { tripExpense, desc } = updateDto;
-
-    const existingBooking = await this.prisma.booking.findUnique({
-      where: { id: bookingId },
-    });
-
-    if (!existingBooking) {
-      throw new NotFoundException(messages.data_not_found);
-    }
-
-    const updatedBooking = await this.prisma.booking.update({
-      where: { id: bookingId },
-      data: {
-        tripExpense: { increment: tripExpense },
-        desc: existingBooking.desc ? `${existingBooking.desc}\n${desc}` : desc,
-        updatedAt: new Date(),
-      },
-    });
-
-    return updatedBooking;
-  }
 }
+
+
+

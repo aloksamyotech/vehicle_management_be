@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { CreateUserDto, UpdateUserDto , UpdateCurrencyDto} from './user.dto';
 import { Prisma } from '@prisma/client';
 import { CryptoService } from 'src/common/crypto.service';
 import { messages } from 'src/common/constant';
@@ -96,5 +96,21 @@ export class UserService {
     } catch (error) {
       throw new InternalServerErrorException(messages.data_deletion_failed);
     }
+  }
+
+  async findByEmail(email: string) {
+    return await this.prisma.user.findUnique({
+      where: { email },
+    });
+  }
+
+  async updateCurrency(id: number, dto: UpdateCurrencyDto) {
+    return this.prisma.user.update({
+      where: { id},
+      data: {
+        currencyCode: dto.currencyCode,
+        currencySymbol: dto.currencySymbol,
+      },
+    });
   }
 }

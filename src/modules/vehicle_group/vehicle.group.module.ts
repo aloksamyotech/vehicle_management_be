@@ -7,5 +7,6 @@ import { VehicleGroupService } from './vehicle.group.service';
     imports: [PrismaModule],
     controllers: [VehicleGroupController],
     providers: [VehicleGroupService],
+    exports: [VehicleGroupService],
 })
 export class VehicleGroupModule {}

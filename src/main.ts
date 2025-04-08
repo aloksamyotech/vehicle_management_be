@@ -2,19 +2,21 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.services';
 import { GlobalExceptionFilter } from './common/exception.filter';
+import {NestExpressApplication} from "@nestjs/platform-express";
+import * as path from "path";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   let db = false
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   app.enableCors({
-    origin: 'http://localhost:3000', 
+    origin: '*', 
     credentials: true, 
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Authorization'
+    methods: '*',
+    allowedHeaders: '*' 
   });
-
+  
   const prismaService = app.get(PrismaService);
   try {
     await prismaService.$connect();
@@ -23,6 +25,7 @@ async function bootstrap() {
     console.error('❌ Failed to connect to the database:', error);
   }
 
+  app.useStaticAssets(path.join(__dirname , "../uploads"));
   const port = process.env.PORT ?? 7600;
   await app.listen(port);
   console.log(`🚀 Server running on port ${port}`);

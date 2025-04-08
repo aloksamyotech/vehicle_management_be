@@ -57,3 +57,11 @@ export class UpdateUserDto {
   @IsBoolean()
   isActive?: boolean;
 }
+
+export class UpdateCurrencyDto {
+  @IsString()
+  currencyCode: string;
+
+  @IsString()
+  currencySymbol: string;
+}

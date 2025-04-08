@@ -95,11 +95,11 @@ export class UpdateVehicleDto {
 
   @IsOptional()
   @IsString()
-  image?: string;
+  image?: string | null;
 
   @IsOptional()
   @IsString()
-  doc?: string;
+  doc?: string | null;
 
   @IsOptional()
   @IsInt()

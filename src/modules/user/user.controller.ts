@@ -7,44 +7,42 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Put,
+  Request
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
-
-@Controller('api/user')
+import { CreateUserDto, UpdateUserDto , UpdateCurrencyDto} from './user.dto';
+@Controller('api/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('save')
-  async createUser(@Body() body: CreateUserDto) {
-    return this.userService.createUser(body);
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.userService.createUser(createUserDto);
   }
 
-  @Get('fetch')
-  async getUsers() {
+  @Get()
+  findAll() {
     return this.userService.getUsers();
   }
 
-  @Post('login')
-  async login(@Body() body: { email: string; password: string }) {
-    return this.userService.login(body.email, body.password);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.userService.getUserById(+id);
   }
 
-  @Get('getById/:id')
-  async getUserById(@Param('id', ParseIntPipe) id: number) {
-    return await this.userService.getUserById(id);
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: CreateUserDto) {
+    return this.userService.updateUser(+id, updateUserDto);
   }
 
-  @Patch('update/:id')
-  async updateUser(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return this.userService.updateUser(id, updateUserDto);
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.userService.removeUser(+id);
   }
 
-  @Delete('delete/:id')
-  async removeUser(@Param('id', ParseIntPipe) id: number) {
-    return await this.userService.removeUser(id);
+  @Patch('currency/:id')
+  async updateCurrency(@Param('id') id: string, @Body() dto: UpdateCurrencyDto) {
+    return this.userService.updateCurrency(+id, dto);
   }
 }

@@ -15,13 +15,42 @@ import { IncomeExpenseModule } from './modules/incomeExpense/income.module';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { BookingExpenseModule } from './modules/bookingExpense/bookinExpense.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { AdminInitService } from './common/admin-init.service';
+import { CryptoModule } from './common/crypto.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { DriverAuthModule } from './modules/driver-auth/driver-auth.module';
+import { FileModule } from './common/fileUpload/file.module';
 @Module({
-  imports: [UserModule,VehicleGroupModule , VehicleModule , DriverModule , CustomerModule , PartsModule, ReminderModule,
-     FuelModule, IncomeExpenseModule, MaintenanceModule, BookingModule , PaymentModule],
+  imports: [
+    UserModule,
+    VehicleGroupModule,
+    VehicleModule,
+    DriverModule,
+    CustomerModule,
+    PartsModule,
+    ReminderModule,
+    FuelModule,
+    IncomeExpenseModule,
+    MaintenanceModule,
+    BookingModule,
+    PaymentModule,
+    BookingExpenseModule,
+    PrismaModule,
+    CryptoModule,
+    AuthModule,
+    DriverAuthModule,
+    FileModule
+  ],
   controllers: [AppController],
-  providers: [AppService, {
-    provide: APP_INTERCEPTOR,
-    useClass: ResponseInterceptor,
-  },],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+    AdminInitService,
+  ],
 })
 export class AppModule {}
