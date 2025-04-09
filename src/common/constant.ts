@@ -30,6 +30,7 @@ export const messages = {
 
     required_field: "This field is required.",
     invalid_input: "Invalid input provided. Please correct and try again.",
+    password_required: "Password is required.",
 
     email: "Email already exist",
     license_no: 'License number already exists.',

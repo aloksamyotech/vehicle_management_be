@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.services';
 import { CryptoService } from './crypto.service';
 import { messages } from './constant';
-
+import { UserRole } from '@prisma/client';
 @Injectable()
 export class AdminInitService implements OnModuleInit {
   constructor(
@@ -28,7 +28,7 @@ export class AdminInitService implements OnModuleInit {
             name: 'Admin',
             password: encryptedText,
             iv: iv,
-            role: 'ADMIN',
+            role: UserRole.ADMIN,
           },
         });
 

@@ -86,6 +86,7 @@ export class BookingService {
     if (existingBooking) {
       throw new ConflictException(messages.vehicle_booking_duplicate);
     }
+
     const booking = await this.prisma.booking.create({
       data: {
         ...createdto,
@@ -211,8 +212,11 @@ export class BookingService {
       whereClause.driverId = driverId;
     }
 
-    if (startDate && endDate) {
+    if (startDate) {
       whereClause.tripStartDate = { gte: startDate };
+    }
+
+    if (endDate) {
       whereClause.tripEndDate = { lte: endDate };
     }
 
@@ -253,6 +257,3 @@ export class BookingService {
     return updatedBooking;
   }
 }
-
-
-

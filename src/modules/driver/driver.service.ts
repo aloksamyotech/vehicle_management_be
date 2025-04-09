@@ -22,11 +22,24 @@ export class DriverService {
   ) {}
 
   async getAll() {
-    return await this.prisma.driver.findMany({
+    const drivers = await this.prisma.driver.findMany({
       where: { isDeleted: false },
       orderBy: { createdAt: 'desc' },
     });
+  
+    const BASE_URL = 'http://localhost:7600';
+  
+    return drivers.map(driver => ({
+      ...driver,
+      imageUrl: driver.image
+        ? `${BASE_URL}/file/stream/${driver.image.split('/').pop()}`
+        : null,
+      docUrl: driver.doc
+        ? `${BASE_URL}/file/stream/${driver.doc.split('/').pop()}`
+        : null,
+    }));
   }
+  
 
   async createDriver(
     driverDto: CreateDriverDto & { image?: string; doc?: string },
@@ -65,13 +78,22 @@ export class DriverService {
 
       return await this.prisma.driver.create({
         data: {
-          ...driverDto,
+          name: driverDto.name,
+          mobileNo: driverDto.mobileNo,
+          age: driverDto.age,
+          address: driverDto.address,
+          licenseNo: driverDto.licenseNo,
+          licenseExpiry: driverDto.licenseExpiry,
+          dateOfJoining: driverDto.dateOfJoining,
+          totalExp: driverDto.totalExp,
+          notes: driverDto.notes,
+          status: driverDto.status,
           image: imagePath,
           doc: docPath,
           password: encryptedText,
           iv: iv,
         },
-      });
+      });      
     } catch (error) {
       if (error instanceof ConflictException) {
         throw error;

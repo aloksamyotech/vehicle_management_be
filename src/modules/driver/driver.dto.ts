@@ -51,9 +51,11 @@ export class CreateDriverDto {
 
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
   password: string;
 
   @IsString()
+  @IsOptional()
   iv: string;
 }
 

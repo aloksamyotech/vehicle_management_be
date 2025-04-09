@@ -37,8 +37,7 @@ export class FileService {
 
     return { 
       message: messages.file_success, 
-      filePath: path.join('uploads', filename),
-      filename: filename
+      filePath: filename
     };
   }
 }

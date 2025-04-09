@@ -13,16 +13,30 @@ export class VehicleService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getAll() {
-    return await this.prisma.vehicle.findMany({
+    const vehicles = await this.prisma.vehicle.findMany({
       where: { isDeleted: false },
       orderBy: { createdAt: 'desc' },
       include: {
         vehicleGroup: true,
       },
     });
+
+    const BASE_URL = 'http://localhost:7600';
+
+    return vehicles.map((vehicle) => ({
+      ...vehicle,
+      imageUrl: vehicle.image
+        ? `${BASE_URL}/file/stream/${vehicle.image.split('/').pop()}`
+        : null,
+      docUrl: vehicle.doc
+        ? `${BASE_URL}/file/stream/${vehicle.doc.split('/').pop()}`
+        : null,
+    }));
   }
 
-  async createVehicle(vehicleDto: CreateVehicleDto & { image?: string; doc?: string }) {
+  async createVehicle(
+    vehicleDto: CreateVehicleDto & { image?: string; doc?: string },
+  ) {
     try {
       const existingVehicles = await this.prisma.vehicle.findMany({
         where: {
@@ -65,7 +79,7 @@ export class VehicleService {
           chasisNo: vehicleDto.chasisNo,
           engineNo: vehicleDto.engineNo,
           manufacturedBy: vehicleDto.manufacturedBy,
-          registrationExpiry: new Date(vehicleDto.registrationExpiry), 
+          registrationExpiry: new Date(vehicleDto.registrationExpiry),
           vehicleColor: vehicleDto.vehicleColor,
           image: vehicleDto.image,
           doc: vehicleDto.doc,
@@ -103,7 +117,17 @@ export class VehicleService {
     if (!result) {
       throw new NotFoundException(messages.data_not_found);
     }
-    return result;
+    const BASE_URL = 'http://localhost:7600';
+
+    return {
+      ...result,
+      imageUrl: result.image
+        ? `${BASE_URL}/file/stream/${result.image.split(/[\\/]/).pop()}`
+        : null,
+      docUrl: result.doc
+        ? `${BASE_URL}/file/stream/${result.doc.split('/').pop()}`
+        : null,
+    };
   }
 
   async updateVehicle(id: number, updateVehicleDto: UpdateVehicleDto) {
@@ -125,9 +149,9 @@ export class VehicleService {
   }
 
   async removeVehicle(id: number) {
-      return await this.prisma.vehicle.update({
-        where: { id },
-        data: { isDeleted: true },
-      });
+    return await this.prisma.vehicle.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
   }
 }

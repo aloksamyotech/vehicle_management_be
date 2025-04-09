@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
 import { DriverService } from './driver.service';
 import { FileService } from 'src/common/fileUpload/file.service';
@@ -19,12 +20,15 @@ import {
   UpdateStatusDto,
 } from './driver.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { CryptoService } from 'src/common/crypto.service';
+import { messages } from 'src/common/constant';
 
 @Controller('api/driver')
 export class DriverController {
   constructor(
     private readonly driverService: DriverService,
     private readonly fileService: FileService,
+    private readonly cryptoService: CryptoService,
   ) {}
 
   @Get('fetch')
@@ -45,33 +49,32 @@ export class DriverController {
       image?: Express.Multer.File[];
       doc?: Express.Multer.File[];
     },
-    @Body() body: CreateDriverDto,
+    @Body() body: any,
   ) {
-    let imagePath = '';
-    let docPath = '';
-
-    try {
-      if (files?.image?.[0] && Object.keys(files.image[0]).length > 0) {
+    let imagePath: string | undefined;
+    let docPath: string | undefined;
+  
+      if (files?.image?.[0]) {
         const imageUpload = this.fileService.handleFileUpload(files.image[0]);
         imagePath = imageUpload.filePath;
       }
-
-      if (files?.doc?.[0] && Object.keys(files.doc[0]).length > 0) {
+  
+      if (files?.doc?.[0]) {
         const docUpload = this.fileService.handleFileUpload(files.doc[0]);
         docPath = docUpload.filePath;
       }
-
+  
       const driverData = {
         ...body,
+        age: Number(body.age),
+        totalExp: Number(body.totalExp),
         image: imagePath,
         doc: docPath,
       };
+  
       return this.driverService.createDriver(driverData);
-    } catch (error) {
-      throw error;
-    }
   }
-
+  
   @Get('getById/:id')
   async getById(@Param('id', ParseIntPipe) id: number) {
     return await this.driverService.getById(id);
