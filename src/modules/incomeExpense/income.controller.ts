@@ -17,8 +17,19 @@ export class IncomeController {
   constructor(private readonly incomeService: IncomeService) {}
 
   @Get('fetch')
-  async getAll() {
-    return this.incomeService.getAll();
+  getAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+
+    const parsedPage = parseInt(page || '1', 10);
+    const parsedLimit = parseInt(limit || '10', 10);
+
+    return isAll
+      ? this.incomeService.getAll()
+      : this.incomeService.getAll(parsedPage, parsedLimit);
   }
 
   @Post('save')
@@ -46,7 +57,7 @@ export class IncomeController {
 
   @Get('/report')
   async getVehicleReport(@Query() query: any) {
-    const { vehicleId, startDate, endDate } = query;
+    const { vehicleId, startDate, endDate, page = 1, limit = 10 } = query;
 
     return this.incomeService.getVehicleReport(
       vehicleId ? Number(vehicleId) : undefined,

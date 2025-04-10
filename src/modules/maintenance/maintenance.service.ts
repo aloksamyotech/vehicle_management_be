@@ -15,17 +15,37 @@ import { messages } from 'src/common/constant';
 export class MaintenanceService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAll() {
-    return await this.prisma.maintenance.findMany({
-      where: { isDeleted: false },
-      orderBy: { createdAt: 'desc' } ,
-      include: {
-        vehicle: true,
-        parts: {
-          include: { partsInventory: true },
+  async getAll(page?: number, limit?: number) {
+    const skip = page && limit ? (page - 1) * limit : undefined;
+    const take = limit || undefined;
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.maintenance.findMany({
+        where: { isDeleted: false },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+        include: {
+          vehicle: true,
+          parts: {
+            include: { partsInventory: true },
+          },
         },
+      }),
+      this.prisma.maintenance.count({
+        where: { isDeleted: false },
+      }),
+    ]);
+
+    return {
+      mainDetails: data,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
       },
-    });
+    };
   }
 
   async getById(id: number) {
@@ -64,16 +84,16 @@ export class MaintenanceService {
         },
         include: { parts: true },
       });
-  
+
       for (const part of createdto.parts) {
         const partInventory = await prisma.partsInventory.findUnique({
           where: { id: part.partsInventoryId },
         });
-  
+
         if (!partInventory || partInventory.stock < part.quantity) {
           throw new Error(messages.data_unavailable);
         }
-  
+
         await prisma.partsInventory.update({
           where: { id: part.partsInventoryId },
           data: {
@@ -86,7 +106,7 @@ export class MaintenanceService {
       return maintenance;
     });
   }
-  
+
   async updateStatus(id: number, statusDto: UpdateMaintenanceStatusDto) {
     const { status } = statusDto;
     await this.prisma.maintenance.findUnique({ where: { id } });
@@ -97,9 +117,9 @@ export class MaintenanceService {
   }
 
   async removeMaintenance(id: number) {
-      return await this.prisma.maintenance.update({
-        where: { id },
-        data: { isDeleted: true },
-      });
+    return await this.prisma.maintenance.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
   }
 }

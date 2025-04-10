@@ -9,11 +9,12 @@ import {
   Delete,
   ParseIntPipe,
   Query,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import {
   CreateBookingDto,
-  UpdateBookingDto, 
+  UpdateBookingDto,
   UpdateBookingStatusDto,
 } from './booking.dto';
 
@@ -22,8 +23,19 @@ export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
   @Get('fetch')
-  async getAll() {
-    return this.bookingService.getAll();
+  getAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+
+    const parsedPage = parseInt(page || '1', 10);
+    const parsedLimit = parseInt(limit || '10', 10);
+
+    return isAll
+      ? this.bookingService.getAll()
+      : this.bookingService.getAll(parsedPage, parsedLimit);
   }
 
   @Post('save')
@@ -51,25 +63,27 @@ export class BookingController {
 
   @Get('/report')
   async getVehicleBookings(@Query() query: any) {
-    const { vehicleId, startDate, endDate } = query;
+    const { vehicleId, startDate, endDate, page = 1, limit = 10 } = query;
 
     return this.bookingService.getVehicleBookings(
       vehicleId ? Number(vehicleId) : undefined,
       startDate ? new Date(startDate) : undefined,
       endDate ? new Date(endDate) : undefined,
+      Number(page),
+      Number(limit),
     );
   }
 
   @Get('driver-bookings')
-  getDriverBookings(
-    @Query('driverId') driverId?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-  ) {
+  async getDriverBookings(@Query() query: any) {
+    const { driverId, startDate, endDate, page = 1, limit = 10 } = query;
+
     return this.bookingService.getDriverBookings(
       driverId ? Number(driverId) : undefined,
       startDate ? new Date(startDate) : undefined,
       endDate ? new Date(endDate) : undefined,
+      Number(page),
+      Number(limit),
     );
   }
 

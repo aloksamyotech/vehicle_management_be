@@ -11,14 +11,24 @@ import {
 } from '@nestjs/common';
 import { FuelService } from './fuel.service';
 import { CreateFuelDto, UpdateFuelDto } from './fuel.dto';
-
 @Controller('api/fuel')
 export class FuelController {
   constructor(private readonly fuelService: FuelService) {}
 
   @Get('fetch')
-  async getAll() {
-    return this.fuelService.getAll();
+  getAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+
+    const parsedPage = parseInt(page || '1', 10);
+    const parsedLimit = parseInt(limit || '10', 10);
+
+    return isAll
+      ? this.fuelService.getAll()
+      : this.fuelService.getAll(parsedPage, parsedLimit);
   }
 
   @Post('save')
@@ -46,7 +56,7 @@ export class FuelController {
 
   @Get('/report')
   async getVehicleReport(@Query() query: any) {
-    const { vehicleId, startDate, endDate } = query;
+    const { vehicleId, startDate, endDate, page = 1, limit = 10 } = query;
 
     return this.fuelService.getVehicleReport(
       vehicleId ? Number(vehicleId) : undefined,

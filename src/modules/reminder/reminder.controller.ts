@@ -7,6 +7,7 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { ReminderService } from './reminder.service';
 import { CreateReminderDto, UpdateReminderDto } from './reminder.dto';
@@ -16,8 +17,19 @@ export class ReminderController {
   constructor(private readonly reminderService: ReminderService) {}
 
   @Get('fetch')
-  async getAll() {
-    return this.reminderService.getAll();
+  getAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+
+    const parsedPage = parseInt(page || '1', 10);
+    const parsedLimit = parseInt(limit || '10', 10);
+
+    return isAll
+      ? this.reminderService.getAll()
+      : this.reminderService.getAll(parsedPage, parsedLimit);
   }
 
   @Post('save')
@@ -41,5 +53,4 @@ export class ReminderController {
   async removeReminder(@Param('id', ParseIntPipe) id: number) {
     return await this.reminderService.removeReminder(id);
   }
-  
 }

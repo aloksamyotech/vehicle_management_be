@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Query,
   Get,
   Param,
   Post,
@@ -9,15 +10,26 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { CustomerService } from './customer.service';
-import { CreateCustomerDto , UpdateCustomerDto } from './customer.dto';
+import { CreateCustomerDto, UpdateCustomerDto } from './customer.dto';
 
 @Controller('api/customer')
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
   @Get('fetch')
-  async getAll() {
-    return this.customerService.getAll();
+  getAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+
+    const parsedPage = parseInt(page || '1', 10);
+    const parsedLimit = parseInt(limit || '10', 10);
+
+    return isAll
+      ? this.customerService.getAll()
+      : this.customerService.getAll(parsedPage, parsedLimit);
   }
 
   @Post('save')
@@ -42,5 +54,4 @@ export class CustomerController {
   async removeCustomer(@Param('id', ParseIntPipe) id: number) {
     return await this.customerService.removeCustomer(id);
   }
-  
 }

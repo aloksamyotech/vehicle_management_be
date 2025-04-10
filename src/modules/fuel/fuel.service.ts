@@ -12,14 +12,32 @@ import { messages } from 'src/common/constant';
 export class FuelService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAll() {
-    return await this.prisma.fuel.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: {
-        vehicle: true,
-        driver: true,
+  async getAll(page?: number, limit?: number) {
+    const skip = page && limit ? (page - 1) * limit : undefined;
+    const take = limit || undefined;
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.fuel.findMany({
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          vehicle: true,
+          driver: true,
+        },
+      }),
+      this.prisma.fuel.count(),
+    ]);
+
+    return {
+      fuelDetails: data,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
       },
-    });
+    };
   }
 
   async getById(id: number) {
@@ -37,7 +55,7 @@ export class FuelService {
   }
 
   async createFuel(createDto: CreateFuelDto) {
-    const { addToExpense, ...fuelData } = createDto; 
+    const { addToExpense, ...fuelData } = createDto;
 
     const fuel = await this.prisma.fuel.create({
       data: fuelData,
@@ -69,9 +87,7 @@ export class FuelService {
         where: { id: updateDto.vehicleId },
       });
       if (!vehicleExists) {
-        throw new BadRequestException(
-          messages.data_not_found
-        );
+        throw new BadRequestException(messages.data_not_found);
       }
     }
 
@@ -80,9 +96,7 @@ export class FuelService {
         where: { id: updateDto.driverId },
       });
       if (!driverExists) {
-        throw new BadRequestException(
-         messages.data_not_found
-        );
+        throw new BadRequestException(messages.data_not_found);
       }
     }
 
@@ -102,34 +116,57 @@ export class FuelService {
   }
 
   async removeFuel(id: number) {
-      return await this.prisma.fuel.delete({
-        where: { id },
-      });
+    return await this.prisma.fuel.delete({
+      where: { id },
+    });
   }
 
-  async getVehicleReport (
+  async getVehicleReport(
     vehicleId?: number,
     startDate?: Date,
     endDate?: Date,
-  ){
-   return await this.prisma.fuel.findMany({
-    where: {
+    page: number = 1,
+    limit: number = 10,
+  ) {
+    const skip = (page - 1) * limit;
+
+    const whereCondition: any = {
       vehicleId: vehicleId || undefined,
       fillDate: {
         gte: startDate || undefined,
         lte: endDate || undefined,
       },
-    },
-    orderBy: { fillDate: 'asc' },
-    select: {
-      vehicle: { select: { id: true, vehicleName: true } },
-      driver: { select: { id: true, name: true } },
-      comments: true,  
-      fillDate: true,
-      quantity: true,
-      odometerReading: true,
-      amount: true
-    },
-   });
+    };
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.fuel.findMany({
+        where: whereCondition,
+        orderBy: { fillDate: 'asc' },
+        skip,
+        take: limit,
+        select: {
+          vehicle: { select: { id: true, vehicleName: true } },
+          driver: { select: { id: true, name: true } },
+          comments: true,
+          fillDate: true,
+          quantity: true,
+          odometerReading: true,
+          amount: true,
+        },
+      }),
+      this.prisma.fuel.count({
+        where: whereCondition,
+      }),
+    ]);
+
+    return {
+      fuelDetails: data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 }
