@@ -18,6 +18,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: any = 'Internal server error';
 
+    const errorDetails = {
+      name: exception?.name || 'Error',
+      message: exception?.message || message,
+      stack: exception?.stack || null,
+    };
+
+    // 👇 Log the full error for server logs
+    console.error('🚨 Exception caught:', errorDetails);
+
     if (exception instanceof ConflictException) {
       status = HttpStatus.CONFLICT;
       message = exception.message;
@@ -35,6 +44,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message: typeof message === 'string' ? message : (message as any).message,
       timestamp: new Date().toISOString(),
       path: request.url,
+      error: errorDetails, // 👈 added detailed error field
     });
   }
 }
