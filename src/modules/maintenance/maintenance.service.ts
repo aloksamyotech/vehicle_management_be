@@ -19,7 +19,15 @@ export class MaintenanceService {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const take = limit || undefined;
 
-    const [data, total] = await this.prisma.$transaction([
+    
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+  
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+  
+
+    const [data, total, totalToday] = await this.prisma.$transaction([
       this.prisma.maintenance.findMany({
         where: { isDeleted: false },
         orderBy: { createdAt: 'desc' },
@@ -35,6 +43,16 @@ export class MaintenanceService {
       this.prisma.maintenance.count({
         where: { isDeleted: false },
       }),
+      this.prisma.maintenance.count({
+        where: {
+          isDeleted: false,
+          status: 'In Progress',
+          createdAt: {
+            gte: todayStart,
+            lte: todayEnd,
+          },
+        },
+      }),
     ]);
 
     return {
@@ -45,6 +63,7 @@ export class MaintenanceService {
         limit,
         totalPages: limit ? Math.ceil(total / limit) : 1,
       },
+      totalTodayMaintenance: totalToday,
     };
   }
 

@@ -12,7 +12,13 @@ export class ReminderService {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const take = limit || undefined;
 
-    const [data, total] = await this.prisma.$transaction([
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const [data, total, todaysReminders] = await this.prisma.$transaction([
       this.prisma.reminder.findMany({
         skip,
         take,
@@ -22,10 +28,23 @@ export class ReminderService {
         },
       }),
       this.prisma.reminder.count(),
+      this.prisma.reminder.findMany({
+        where: {
+          createdAt: {
+            gte: todayStart,
+            lte: todayEnd,
+          },
+        },
+        include: {
+          vehicle: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
     ]);
 
     return {
       reminderDetails: data,
+      todaysReminders,
       pagination: {
         total,
         page,

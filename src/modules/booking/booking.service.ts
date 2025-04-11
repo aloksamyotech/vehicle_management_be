@@ -24,32 +24,67 @@ export class BookingService {
   async getAll(page?: number, limit?: number) {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const take = limit || undefined;
-  
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.booking.findMany({
-        where: { isDeleted: false },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take,
-        include: {
-          vehicle: true,
-          driver: true,
-          customer: true,
-        },
-      }),
-      this.prisma.booking.count({
-        where: { isDeleted: false },
-      }),
-    ]);
-  
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const monthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const monthEnd = new Date();
+    monthEnd.setHours(23, 59, 59, 999);
+
+    const [data, total, totalToday, totalThisMonth] =
+      await this.prisma.$transaction([
+        this.prisma.booking.findMany({
+          where: { isDeleted: false },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take,
+          include: {
+            vehicle: true,
+            driver: true,
+            customer: true,
+          },
+        }),
+        this.prisma.booking.count({
+          where: { isDeleted: false },
+        }),
+        this.prisma.booking.count({
+          where: {
+            isDeleted: false,
+            createdAt: {
+              gte: todayStart,
+              lte: todayEnd,
+            },
+          },
+        }),
+        this.prisma.booking.count({
+          where: {
+            isDeleted: false,
+            createdAt: {
+              gte: monthStart,
+              lte: monthEnd,
+            },
+          },
+        }),
+      ]);
+
     return {
-      bookingDetails : data,
+      bookingDetails: data,
       pagination: {
-      total,
-      page,
-      limit,
-      totalPages: limit ? Math.ceil(total / limit) : 1,
-      }
+        total,
+        page,
+        limit,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
+      },
+      totalTodayBookings: totalToday,
+      totalMonthlyBookings: totalThisMonth,
     };
   }
 
@@ -242,7 +277,7 @@ export class BookingService {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
-      }
+      },
     };
   }
 
@@ -294,7 +329,7 @@ export class BookingService {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
-      }
+      },
     };
   }
 
