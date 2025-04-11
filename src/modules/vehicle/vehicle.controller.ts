@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Query,
   Get,
   Param,
   Post,
@@ -23,8 +24,19 @@ export class VehicleController {
   ) {}
 
   @Get('fetch')
-  async getAll() {
-    return this.vehicleService.getAll();
+  getAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+
+    const parsedPage = parseInt(page || '1', 10);
+    const parsedLimit = parseInt(limit || '10', 10);
+
+    return isAll
+      ? this.vehicleService.getAll()
+      : this.vehicleService.getAll(parsedPage, parsedLimit);
   }
 
   @Post('save')

@@ -7,6 +7,7 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { PartsService } from './parts.service';
 import { CreatePartsDto, UpdatePartsDto } from './parts.dto';
@@ -14,10 +15,21 @@ import { CreatePartsDto, UpdatePartsDto } from './parts.dto';
 @Controller('api/parts')
 export class PartsController {
   constructor(private readonly partsService: PartsService) {}
-
+  
   @Get('fetch')
-  async getAll() {
-    return this.partsService.getAll();
+  getAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+
+    const parsedPage = parseInt(page || '1', 10);
+    const parsedLimit = parseInt(limit || '10', 10);
+
+    return isAll
+      ? this.partsService.getAll()
+      : this.partsService.getAll(parsedPage, parsedLimit);
   }
 
   @Post('save')
@@ -42,5 +54,4 @@ export class PartsController {
   async removeParts(@Param('id', ParseIntPipe) id: number) {
     return await this.partsService.removeParts(id);
   }
-  
 }
