@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Query,
   Get,
   Param,
   Post,
@@ -10,7 +11,6 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFiles,
-  BadRequestException,
 } from '@nestjs/common';
 import { DriverService } from './driver.service';
 import { FileService } from 'src/common/fileUpload/file.service';
@@ -32,8 +32,19 @@ export class DriverController {
   ) {}
 
   @Get('fetch')
-  async getAll() {
-    return this.driverService.getAll();
+  getAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+
+    const parsedPage = parseInt(page || '1', 10);
+    const parsedLimit = parseInt(limit || '10', 10);
+
+    return isAll
+      ? this.driverService.getAll()
+      : this.driverService.getAll(parsedPage, parsedLimit);
   }
 
   @Post('save')
@@ -53,28 +64,28 @@ export class DriverController {
   ) {
     let imagePath: string | undefined;
     let docPath: string | undefined;
-  
-      if (files?.image?.[0]) {
-        const imageUpload = this.fileService.handleFileUpload(files.image[0]);
-        imagePath = imageUpload.filePath;
-      }
-  
-      if (files?.doc?.[0]) {
-        const docUpload = this.fileService.handleFileUpload(files.doc[0]);
-        docPath = docUpload.filePath;
-      }
-  
-      const driverData = {
-        ...body,
-        age: Number(body.age),
-        totalExp: Number(body.totalExp),
-        image: imagePath,
-        doc: docPath,
-      };
-  
-      return this.driverService.createDriver(driverData);
+
+    if (files?.image?.[0]) {
+      const imageUpload = this.fileService.handleFileUpload(files.image[0]);
+      imagePath = imageUpload.filePath;
+    }
+
+    if (files?.doc?.[0]) {
+      const docUpload = this.fileService.handleFileUpload(files.doc[0]);
+      docPath = docUpload.filePath;
+    }
+
+    const driverData = {
+      ...body,
+      age: Number(body.age),
+      totalExp: Number(body.totalExp),
+      image: imagePath,
+      doc: docPath,
+    };
+
+    return this.driverService.createDriver(driverData);
   }
-  
+
   @Get('getById/:id')
   async getById(@Param('id', ParseIntPipe) id: number) {
     return await this.driverService.getById(id);

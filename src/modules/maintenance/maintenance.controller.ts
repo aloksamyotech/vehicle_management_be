@@ -7,17 +7,32 @@ import {
   Put,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { MaintenanceService } from './maintenance.service';
-import { CreateMaintenanceDto, UpdateMaintenanceStatusDto } from './maintenance.dto';
+import {
+  CreateMaintenanceDto,
+  UpdateMaintenanceStatusDto,
+} from './maintenance.dto';
 
 @Controller('api/maintenance')
 export class MaintenanceController {
   constructor(private readonly maintenanceService: MaintenanceService) {}
 
   @Get('fetch')
-  async getAll() {
-    return this.maintenanceService.getAll();
+  getAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+
+    const parsedPage = parseInt(page || '1', 10);
+    const parsedLimit = parseInt(limit || '10', 10);
+
+    return isAll
+      ? this.maintenanceService.getAll()
+      : this.maintenanceService.getAll(parsedPage, parsedLimit);
   }
 
   @Post('save')
@@ -33,7 +48,7 @@ export class MaintenanceController {
   @Put('updateStatus/:id')
   async updateStatus(
     @Param('id', ParseIntPipe) id: number,
-    @Body() statusDto: UpdateMaintenanceStatusDto
+    @Body() statusDto: UpdateMaintenanceStatusDto,
   ) {
     return this.maintenanceService.updateStatus(Number(id), statusDto);
   }
@@ -42,5 +57,4 @@ export class MaintenanceController {
   async removeMaintenance(@Param('id', ParseIntPipe) id: number) {
     return await this.maintenanceService.removeMaintenance(id);
   }
-  
 }

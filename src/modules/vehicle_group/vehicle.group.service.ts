@@ -16,11 +16,30 @@ import { messages } from 'src/common/constant';
 export class VehicleGroupService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAll() {
-    return await this.prisma.vehicleGroup.findMany({
-      where: { isDeleted: false },
-      orderBy: { createdAt: 'desc' },
-    });
+  async getAll(page?: number, limit?: number) {
+    const skip = page && limit ? (page - 1) * limit : undefined;
+    const take = limit || undefined;
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.vehicleGroup.findMany({
+        where: { isDeleted: false },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.vehicleGroup.count({
+        where: { isDeleted: false },
+      }),
+    ]);
+
+    return {
+      groupDetails: data,
+      pagination: {
+      total,
+      page,
+      limit,
+      totalPages: limit ? Math.ceil(total / limit) : 1,
+      }
+    };
   }
 
   async create(groupData: CreateVehicleGroupDto) {
@@ -39,9 +58,7 @@ export class VehicleGroupService {
       if (error instanceof ConflictException) {
         throw error;
       }
-      throw new InternalServerErrorException(
-       messages.data_add_failed
-      );
+      throw new InternalServerErrorException(messages.data_add_failed);
     }
   }
 
@@ -56,16 +73,16 @@ export class VehicleGroupService {
   }
 
   async update(id: number, updateGroupDto: UpdateVehicleGroupDto) {
-      return await this.prisma.vehicleGroup.update({
-        where: { id },
-        data: updateGroupDto,
-      });
+    return await this.prisma.vehicleGroup.update({
+      where: { id },
+      data: updateGroupDto,
+    });
   }
 
   async removeGroup(id: number) {
-      return await this.prisma.vehicleGroup.update({
-        where: { id },
-        data: { isDeleted: true },
-      });
+    return await this.prisma.vehicleGroup.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
   }
 }

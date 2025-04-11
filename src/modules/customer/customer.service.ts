@@ -13,11 +13,49 @@ import { messages } from 'src/common/constant';
 export class CustomerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAll() {
-    return await this.prisma.customer.findMany({
-      where: { isDeleted: false },
-      orderBy: { createdAt: 'desc' },
-    });
+  async getAll(page?: number, limit?: number) {
+    const skip = page && limit ? (page - 1) * limit : undefined;
+    const take = limit || undefined;
+
+    const monthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const monthEnd = new Date();
+    monthEnd.setHours(23, 59, 59, 999);
+
+    const [data, total, totalThisMonth] = await this.prisma.$transaction([
+      this.prisma.customer.findMany({
+        where: { isDeleted: false },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.customer.count({
+        where: { isDeleted: false },
+      }),
+      this.prisma.customer.count({
+        where: {
+          isDeleted: false,
+          createdAt: {
+            gte: monthStart,
+            lte: monthEnd,
+          },
+        },
+      }),
+    ]);
+
+    return {
+      customerDetails: data,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
+      },
+      totalMonthlyCustomers: totalThisMonth,
+    };
   }
 
   async createCustomer(customerDto: CreateCustomerDto) {
@@ -51,16 +89,16 @@ export class CustomerService {
   }
 
   async update(id: number, updateDto: UpdateCustomerDto) {
-      return await this.prisma.customer.update({
-        where: { id },
-        data: updateDto,
-      });
+    return await this.prisma.customer.update({
+      where: { id },
+      data: updateDto,
+    });
   }
 
   async removeCustomer(id: number) {
-      return await this.prisma.customer.update({
-        where: { id },
-        data: { isDeleted: true },
-      });
+    return await this.prisma.customer.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
   }
 }

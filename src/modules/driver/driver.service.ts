@@ -21,15 +21,42 @@ export class DriverService {
     private readonly cryptoService: CryptoService,
   ) {}
 
-  async getAll() {
-    const drivers = await this.prisma.driver.findMany({
-      where: { isDeleted: false },
-      orderBy: { createdAt: 'desc' },
-    });
-  
+  async getAll(page?: number, limit?: number) {
+    const skip = page && limit ? (page - 1) * limit : undefined;
+    const take = limit || undefined;
+
+    const monthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const monthEnd = new Date();
+    monthEnd.setHours(23, 59, 59, 999);
+
+    const [drivers, total, totalThisMonth] = await this.prisma.$transaction([
+      this.prisma.driver.findMany({
+        where: { isDeleted: false },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.driver.count({
+        where: { isDeleted: false },
+      }),
+      this.prisma.driver.count({
+        where: {
+          isDeleted: false,
+          createdAt: {
+            gte: monthStart,
+            lte: monthEnd,
+          },
+        },
+      }),
+    ]);
+
     const BASE_URL = 'http://localhost:7600';
-  
-    return drivers.map(driver => ({
+
+    const data = drivers.map((driver) => ({
       ...driver,
       imageUrl: driver.image
         ? `${BASE_URL}/file/stream/${driver.image.split('/').pop()}`
@@ -38,8 +65,18 @@ export class DriverService {
         ? `${BASE_URL}/file/stream/${driver.doc.split('/').pop()}`
         : null,
     }));
+
+    return {
+      driverDetails: data,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
+      },
+      totalMonthlyDrivers: totalThisMonth,
+    };
   }
-  
 
   async createDriver(
     driverDto: CreateDriverDto & { image?: string; doc?: string },
@@ -93,7 +130,7 @@ export class DriverService {
           password: encryptedText,
           iv: iv,
         },
-      });      
+      });
     } catch (error) {
       if (error instanceof ConflictException) {
         throw error;

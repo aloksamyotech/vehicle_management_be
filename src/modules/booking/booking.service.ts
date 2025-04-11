@@ -21,16 +21,71 @@ export class BookingService {
     private readonly notificationService: NotificationService,
   ) {}
 
-  async getAll() {
-    return await this.prisma.booking.findMany({
-      where: { isDeleted: false },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        vehicle: true,
-        driver: true,
-        customer: true,
+  async getAll(page?: number, limit?: number) {
+    const skip = page && limit ? (page - 1) * limit : undefined;
+    const take = limit || undefined;
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const monthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const monthEnd = new Date();
+    monthEnd.setHours(23, 59, 59, 999);
+
+    const [data, total, totalToday, totalThisMonth] =
+      await this.prisma.$transaction([
+        this.prisma.booking.findMany({
+          where: { isDeleted: false },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take,
+          include: {
+            vehicle: true,
+            driver: true,
+            customer: true,
+          },
+        }),
+        this.prisma.booking.count({
+          where: { isDeleted: false },
+        }),
+        this.prisma.booking.count({
+          where: {
+            isDeleted: false,
+            createdAt: {
+              gte: todayStart,
+              lte: todayEnd,
+            },
+          },
+        }),
+        this.prisma.booking.count({
+          where: {
+            isDeleted: false,
+            createdAt: {
+              gte: monthStart,
+              lte: monthEnd,
+            },
+          },
+        }),
+      ]);
+
+    return {
+      bookingDetails: data,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
       },
-    });
+      totalTodayBookings: totalToday,
+      totalMonthlyBookings: totalThisMonth,
+    };
   }
 
   async getById(id: number) {
@@ -180,30 +235,61 @@ export class BookingService {
     vehicleId?: number,
     startDate?: Date,
     endDate?: Date,
+    page: number = 1,
+    limit: number = 10,
   ) {
-    return await this.prisma.booking.findMany({
-      where: {
-        isDeleted: false,
-        vehicleId: vehicleId || undefined,
-        tripStartDate: startDate ? { gte: startDate } : undefined,
-        tripEndDate: endDate ? { lte: endDate } : undefined,
+    const skip = (page - 1) * limit;
+
+    const whereCondition = {
+      isDeleted: false,
+      vehicleId: vehicleId || undefined,
+      tripStartDate: startDate ? { gte: startDate } : undefined,
+      tripEndDate: endDate ? { lte: endDate } : undefined,
+    };
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.booking.findMany({
+        where: whereCondition,
+        orderBy: { tripStartDate: 'asc' },
+        skip,
+        take: limit,
+        select: {
+          customer: { select: { id: true, name: true } },
+          vehicle: { select: { id: true, vehicleName: true } },
+          driver: { select: { id: true, name: true } },
+          tripType: true,
+          totalAmt: true,
+          tripStatus: true,
+          tripStartLoc: true,
+          tripEndLoc: true,
+          totalKm: true,
+        },
+      }),
+      this.prisma.booking.count({
+        where: whereCondition,
+      }),
+    ]);
+
+    return {
+      vehicleDetails: data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
-      orderBy: { tripStartDate: 'asc' },
-      select: {
-        customer: { select: { id: true, name: true } },
-        vehicle: { select: { id: true, vehicleName: true } },
-        driver: { select: { id: true, name: true } },
-        tripType: true,
-        totalAmt: true,
-        tripStatus: true,
-        tripStartLoc: true,
-        tripEndLoc: true,
-        totalKm: true,
-      },
-    });
+    };
   }
 
-  async getDriverBookings(driverId?: number, startDate?: Date, endDate?: Date) {
+  async getDriverBookings(
+    driverId?: number,
+    startDate?: Date,
+    endDate?: Date,
+    page: number = 1,
+    limit: number = 10,
+  ) {
+    const skip = (page - 1) * limit;
+
     const whereClause: any = {
       isDeleted: false,
     };
@@ -217,19 +303,34 @@ export class BookingService {
     }
 
     if (endDate) {
-      whereClause.tripEndDate = { lte: endDate };
+      whereClause.tripEndDate = { ...whereClause.tripStartDate, lte: endDate };
     }
 
-    return await this.prisma.booking.findMany({
-      where: whereClause,
-      orderBy: { createdAt: 'asc' },
-      include: {
-        vehicle: { select: { id: true, vehicleName: true } },
-        driver: { select: { id: true, name: true } },
-        customer: { select: { id: true, name: true, email: true } },
-        tripExpenses: true,
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.booking.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'asc' },
+        skip,
+        take: limit,
+        include: {
+          vehicle: { select: { id: true, vehicleName: true } },
+          driver: { select: { id: true, name: true } },
+          customer: { select: { id: true, name: true, email: true } },
+          tripExpenses: true,
+        },
+      }),
+      this.prisma.booking.count({ where: whereClause }),
+    ]);
+
+    return {
+      driverDetails: data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
-    });
+    };
   }
 
   async updateBookingStatus(
