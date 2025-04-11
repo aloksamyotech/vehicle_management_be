@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { CreateUserDto, UpdateUserDto , UpdateCurrencyDto} from './user.dto';
-import { Prisma } from '@prisma/client';
 import { CryptoService } from 'src/common/crypto.service';
 import { messages } from 'src/common/constant';
 
