@@ -17,7 +17,15 @@ export class CustomerService {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const take = limit || undefined;
 
-    const [data, total] = await this.prisma.$transaction([
+    const monthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const monthEnd = new Date();
+    monthEnd.setHours(23, 59, 59, 999);
+
+    const [data, total, totalThisMonth] = await this.prisma.$transaction([
       this.prisma.customer.findMany({
         where: { isDeleted: false },
         orderBy: { createdAt: 'desc' },
@@ -27,16 +35,26 @@ export class CustomerService {
       this.prisma.customer.count({
         where: { isDeleted: false },
       }),
+      this.prisma.customer.count({
+        where: {
+          isDeleted: false,
+          createdAt: {
+            gte: monthStart,
+            lte: monthEnd,
+          },
+        },
+      }),
     ]);
 
     return {
       customerDetails: data,
       pagination: {
-      total,
-      page,
-      limit,
-      totalPages: limit ? Math.ceil(total / limit) : 1,
-      }
+        total,
+        page,
+        limit,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
+      },
+      totalMonthlyCustomers: totalThisMonth,
     };
   }
 

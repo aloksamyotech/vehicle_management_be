@@ -65,4 +65,11 @@ export class IncomeController {
       endDate ? new Date(endDate) : undefined,
     );
   }
+
+  @Get('monthly-summary')
+  getMonthlyIncomeExpense(@Query('year') year?: string) {
+    return this.incomeService.getMonthlySummary(
+      year ? +year : undefined,
+    );
+  }
 }

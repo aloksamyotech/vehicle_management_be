@@ -25,7 +25,15 @@ export class DriverService {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const take = limit || undefined;
 
-    const [drivers, total] = await this.prisma.$transaction([
+    const monthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const monthEnd = new Date();
+    monthEnd.setHours(23, 59, 59, 999);
+
+    const [drivers, total, totalThisMonth] = await this.prisma.$transaction([
       this.prisma.driver.findMany({
         where: { isDeleted: false },
         orderBy: { createdAt: 'desc' },
@@ -34,6 +42,15 @@ export class DriverService {
       }),
       this.prisma.driver.count({
         where: { isDeleted: false },
+      }),
+      this.prisma.driver.count({
+        where: {
+          isDeleted: false,
+          createdAt: {
+            gte: monthStart,
+            lte: monthEnd,
+          },
+        },
       }),
     ]);
 
@@ -52,11 +69,12 @@ export class DriverService {
     return {
       driverDetails: data,
       pagination: {
-      total,
-      page,
-      limit,
-      totalPages: limit ? Math.ceil(total / limit) : 1,
-      }
+        total,
+        page,
+        limit,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
+      },
+      totalMonthlyDrivers: totalThisMonth,
     };
   }
 

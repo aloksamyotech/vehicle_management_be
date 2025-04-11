@@ -15,8 +15,16 @@ export class VehicleService {
   async getAll(page?: number, limit?: number) {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const take = limit || undefined;
-  
-    const [vehicles, total] = await this.prisma.$transaction([
+
+    const monthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const monthEnd = new Date();
+    monthEnd.setHours(23, 59, 59, 999);
+
+    const [vehicles, total, totalThisMonth] = await this.prisma.$transaction([
       this.prisma.vehicle.findMany({
         where: { isDeleted: false },
         orderBy: { createdAt: 'desc' },
@@ -29,10 +37,19 @@ export class VehicleService {
       this.prisma.vehicle.count({
         where: { isDeleted: false },
       }),
+      this.prisma.vehicle.count({
+        where: {
+          isDeleted: false,
+          createdAt: {
+            gte: monthStart,
+            lte: monthEnd,
+          },
+        },
+      }),
     ]);
-  
+
     const BASE_URL = 'http://localhost:7600';
-  
+
     const data = vehicles.map((vehicle) => ({
       ...vehicle,
       imageUrl: vehicle.image
@@ -42,15 +59,16 @@ export class VehicleService {
         ? `${BASE_URL}/file/stream/${vehicle.doc.split('/').pop()}`
         : null,
     }));
-  
+
     return {
       vehicleDetails: data,
       pagination: {
-      total,
-      page,
-      limit,
-      totalPages: limit ? Math.ceil(total / limit) : 1,
-      }
+        total,
+        page,
+        limit,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
+      },
+      totalMonthlyVehicles: totalThisMonth,
     };
   }
 
