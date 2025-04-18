@@ -17,7 +17,6 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
           data,
           message: 'Request successful',
         };
-        console.info('✅ Response sent:', responseObject);
         return responseObject;
       }),
     );
