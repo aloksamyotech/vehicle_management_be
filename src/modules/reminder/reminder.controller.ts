@@ -20,16 +20,25 @@ export class ReminderController {
   getAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('todayPage') todayPage?: string,
+    @Query('todayLimit') todayLimit?: string,
     @Query('all') all?: string,
   ) {
     const isAll = all === 'true';
 
     const parsedPage = parseInt(page || '1', 10);
     const parsedLimit = parseInt(limit || '10', 10);
+    const parsedTodayPage = parseInt(todayPage || '1', 10);
+    const parsedTodayLimit = parseInt(todayLimit || '5', 10);
 
     return isAll
       ? this.reminderService.getAll()
-      : this.reminderService.getAll(parsedPage, parsedLimit);
+      : this.reminderService.getAll(
+          parsedPage,
+          parsedLimit,
+          parsedTodayPage,
+          parsedTodayLimit,
+        );
   }
 
   @Post('save')

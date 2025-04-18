@@ -5,7 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
-import { CreateUserDto, UpdateUserDto , UpdateCurrencyDto} from './user.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UpdateCurrencyDto,
+  UpdateStatusDto,
+} from './user.dto';
 import { CryptoService } from 'src/common/crypto.service';
 import { messages } from 'src/common/constant';
 
@@ -16,10 +21,31 @@ export class UserService {
     private readonly cryptoService: CryptoService,
   ) {}
 
-  async getUsers() {
-    return await this.prisma.user.findMany({
-      where: { isDeleted: false }, 
-    });
+  async getAll(page?: number, limit?: number) {
+    const skip = page && limit ? (page - 1) * limit : undefined;
+    const take = limit || undefined;
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.user.findMany({
+        where: { isDeleted: false, role: 'USER' },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.user.count({
+        where: { isDeleted: false , role: 'USER' },
+      }),
+    ]);
+
+    return {
+      userDetails: data,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
+      },
+    };
   }
 
   async createUser(userData: CreateUserDto) {
@@ -67,7 +93,7 @@ export class UserService {
 
   async getUserById(id: number) {
     const user = await this.prisma.user.findUnique({
-      where: { id ,  isDeleted: false  }
+      where: { id, isDeleted: false },
     });
     if (!user) {
       throw new NotFoundException(messages.data_not_found);
@@ -105,11 +131,20 @@ export class UserService {
 
   async updateCurrency(id: number, dto: UpdateCurrencyDto) {
     return this.prisma.user.update({
-      where: { id},
+      where: { id },
       data: {
         currencyCode: dto.currencyCode,
         currencySymbol: dto.currencySymbol,
       },
+    });
+  }
+
+  async updateStatus(id: number, statusDto: UpdateStatusDto) {
+    const { isActive } = statusDto;
+    await this.prisma.user.findUnique({ where: { id } });
+    return await this.prisma.user.update({
+      where: { id },
+      data: { isActive },
     });
   }
 }

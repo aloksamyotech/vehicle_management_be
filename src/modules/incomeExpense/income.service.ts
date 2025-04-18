@@ -12,6 +12,21 @@ import { messages } from 'src/common/constant';
 export class IncomeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  MONTH_NAMES = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
   async getAll(page?: number, limit?: number) {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const take = limit || undefined;
@@ -198,20 +213,7 @@ export class IncomeService {
 
     return months.map((m, i) => ({
       month: i + 1,
-      name: [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ][i],
+      name: this.MONTH_NAMES[i],
       income: m.income,
       expense: m.expense,
       profitOrLoss: m.income - m.expense,

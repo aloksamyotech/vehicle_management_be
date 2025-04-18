@@ -6,43 +6,70 @@ import {
   Post,
   Patch,
   Delete,
-  ParseIntPipe,
+  Query,
   Put,
-  Request
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto , UpdateCurrencyDto} from './user.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UpdateCurrencyDto,
+  UpdateStatusDto,
+} from './user.dto';
 @Controller('api/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
+  @Post('save')
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.getUsers();
+  @Get('fetch')
+  getAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+
+    const parsedPage = parseInt(page || '1', 10);
+    const parsedLimit = parseInt(limit || '10', 10);
+
+    return isAll
+      ? this.userService.getAll()
+      : this.userService.getAll(parsedPage, parsedLimit);
   }
 
-  @Get(':id')
+  @Get('getById/:id')
   findOne(@Param('id') id: string) {
     return this.userService.getUserById(+id);
   }
 
-  @Put(':id')
+  @Put('update/:id')
   update(@Param('id') id: string, @Body() updateUserDto: CreateUserDto) {
     return this.userService.updateUser(+id, updateUserDto);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   remove(@Param('id') id: string) {
     return this.userService.removeUser(+id);
   }
 
   @Patch('currency/:id')
-  async updateCurrency(@Param('id') id: string, @Body() dto: UpdateCurrencyDto) {
+  async updateCurrency(
+    @Param('id') id: string,
+    @Body() dto: UpdateCurrencyDto,
+  ) {
     return this.userService.updateCurrency(+id, dto);
+  }
+
+  @Put('updateStatus/:id')
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() statusDto: UpdateStatusDto,
+  ) {
+    return this.userService.updateStatus(Number(id), statusDto);
   }
 }
