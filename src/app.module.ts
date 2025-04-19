@@ -22,6 +22,7 @@ import { CryptoModule } from './common/crypto.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DriverAuthModule } from './modules/driver-auth/driver-auth.module';
 import { FileModule } from './common/fileUpload/file.module';
+import { UserManagementModule } from './modules/userManagement/user.management.module';
 @Module({
   imports: [
     UserModule,
@@ -41,7 +42,8 @@ import { FileModule } from './common/fileUpload/file.module';
     CryptoModule,
     AuthModule,
     DriverAuthModule,
-    FileModule
+    FileModule,
+    UserManagementModule
   ],
   controllers: [AppController],
   providers: [
@@ -53,4 +55,4 @@ import { FileModule } from './common/fileUpload/file.module';
     AdminInitService,
   ],
 })
-export class AppModule {}
+export class AppModule { }

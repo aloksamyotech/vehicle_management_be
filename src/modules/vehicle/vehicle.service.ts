@@ -165,6 +165,7 @@ export class VehicleService {
       docUrl: result.doc
         ? `${BASE_URL}/file/stream/${result.doc.split('/').pop()}`
         : null,
+      bookingsCount: result.bookings?.length || 0,
     };
   }
 

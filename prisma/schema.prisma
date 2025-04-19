@@ -27,6 +27,8 @@ model User {
   currencyCode   String @default("INR")
   isActive Boolean @default(true)
   isDeleted Boolean @default(false) 
+
+  userFeaturePermissions  UserFeaturePermission[]
 }
 
 model VehicleGroup { 
@@ -240,6 +242,51 @@ model TripExpense {
   updatedAt   DateTime @updatedAt
   isDeleted   Boolean  @default(false)
 }
+
+model Feature {
+  id          Int @id @default(autoincrement())
+  name        String
+  code        String @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDeleted   Boolean  @default(false)
+
+  userFeaturePermissions  UserFeaturePermission[]
+
+}
+
+model Permission {
+  id          Int @id @default(autoincrement())
+  name        String
+  code        String @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDeleted   Boolean  @default(false)
+  userFeaturePermissions  UserFeaturePermission[]
+
+}
+
+
+model UserFeaturePermission {
+  id           Int         @id @default(autoincrement())
+  user         User        @relation(fields: [userId], references: [id])
+  userId       Int
+
+  feature      Feature     @relation(fields: [featureId], references: [id])
+  featureId    Int
+
+  permission   Permission  @relation(fields: [permissionId], references: [id])
+  permissionId Int
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@unique([userId, featureId, permissionId]) 
+}
+
+
+
+
 
 
 

@@ -24,7 +24,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       stack: exception?.stack || null,
     };
 
-    // 👇 Log the full error for server logs
     console.error('🚨 Exception caught:', errorDetails);
 
     if (exception instanceof ConflictException) {
@@ -44,7 +43,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message: typeof message === 'string' ? message : (message as any).message,
       timestamp: new Date().toISOString(),
       path: request.url,
-      error: errorDetails, // 👈 added detailed error field
+      error: errorDetails, 
     });
   }
 }

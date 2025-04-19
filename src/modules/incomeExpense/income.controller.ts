@@ -63,6 +63,8 @@ export class IncomeController {
       vehicleId ? Number(vehicleId) : undefined,
       startDate ? new Date(startDate) : undefined,
       endDate ? new Date(endDate) : undefined,
+      Number(page),
+      Number(limit),
     );
   }
 
