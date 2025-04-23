@@ -14,6 +14,7 @@ import { Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createReadStream } from 'fs';
+import { messages } from '../constant';
 
 @Controller('file')
 export class FileController {
@@ -41,7 +42,7 @@ export class FileController {
     const filePath = path.join(this.uploadPath, filename);
 
     if (!fs.existsSync(filePath)) {
-      throw new NotFoundException('File not found');
+      throw new NotFoundException(messages.data_not_found);
     }
 
     const stream = createReadStream(filePath);

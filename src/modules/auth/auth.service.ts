@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { CryptoService } from '../../common/crypto.service';
+import { UserManagementService } from '../userManagement/user.management.service';
+import { PrismaService } from 'src/prisma/prisma.services';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -9,6 +12,8 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly cryptoService: CryptoService,
+    private readonly userManagementService: UserManagementService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -28,7 +33,18 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { email: user.email, sub: user.id, role: user.role };
+    let permissions: any[] = [];
+    if (user.role === 'USER') {
+      permissions = await this.userManagementService.getUserPermissions(
+        user.id,
+      );
+    }
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+      permissions: permissions.length > 0 ? permissions : undefined,
+    };
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -36,6 +52,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        permissions,
         currencySymbol: user.currencySymbol,
         currencyCode: user.currencyCode,
         phone: user.phone,

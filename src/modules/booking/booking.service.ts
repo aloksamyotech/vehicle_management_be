@@ -357,4 +357,44 @@ export class BookingService {
 
     return updatedBooking;
   }
+
+  async getBookingsByCustomer(
+    customerId: number,
+    page: number = 1,
+    limit: number = 10,
+  ) {
+    const skip = (page - 1) * limit;
+
+    const whereCondition = {
+      isDeleted: false,
+      customerId,
+    };
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.booking.findMany({
+        where: whereCondition,
+        orderBy: { tripStartDate: 'asc' },
+        skip,
+        take: limit,
+        include: {
+          vehicle: { select: { id: true, vehicleName: true } },
+          driver: { select: { id: true, name: true } },
+          customer: { select: { id: true, name: true, email: true } },
+        },
+      }),
+      this.prisma.booking.count({
+        where: whereCondition,
+      }),
+    ]);
+
+    return {
+      customerBookings: data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
 }

@@ -1,107 +1,133 @@
 import {
-    IsString,
-    IsBoolean,
-    IsOptional,
-    IsInt,
-    IsDateString,
-    IsNotEmpty,
-  } from 'class-validator';
-  
-  export class CreateVehicleDto {
-    @IsString()
-    @IsNotEmpty()
-    registrationNo: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    vehicleName: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    model: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    chasisNo: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    engineNo: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    manufacturedBy: string;
-  
-    @IsOptional()
-    @IsString()
-    vehicleColor?: string;
-  
-    @IsNotEmpty()
-    @IsDateString()
-    registrationExpiry: string;
-  
-    @IsBoolean()
-    @IsOptional()
-    isActive?: boolean;
-  
-    @IsOptional()
-    @IsString()
-    image?: string;
-  
-    @IsOptional()
-    @IsString()
-    doc?: string;
-  
-    @IsInt()
-    @IsNotEmpty()
-    vehicleGroupId: number;
-  }
-export class UpdateVehicleDto {
-  @IsOptional()
-  @IsString()
-  registrationNo?: string;
+  IsString,
+  IsBoolean,
+  IsOptional,
+  IsInt,
+  IsDateString,
+  IsNotEmpty,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-  @IsOptional()
+export class CreateVehicleDto {
+  @ApiProperty({ example: 'ABC1234', description: 'Vehicle registration number' })
   @IsString()
-  vehicleName?: string;
+  @IsNotEmpty()
+  registrationNo: string;
 
-  @IsOptional()
+  @ApiProperty({ example: 'Toyota Corolla', description: 'Vehicle name' })
   @IsString()
-  model?: string;
+  @IsNotEmpty()
+  vehicleName: string;
 
-  @IsOptional()
+  @ApiProperty({ example: '2021', description: 'Vehicle model' })
   @IsString()
-  chasisNo?: string;
+  @IsNotEmpty()
+  model: string;
 
-  @IsOptional()
+  @ApiProperty({ example: 'X1234567890', description: 'Vehicle chassis number' })
   @IsString()
-  engineNo?: string;
+  @IsNotEmpty()
+  chasisNo: string;
 
-  @IsOptional()
+  @ApiProperty({ example: 'EN987654321', description: 'Vehicle engine number' })
   @IsString()
-  manufacturedBy?: string;
+  @IsNotEmpty()
+  engineNo: string;
 
+  @ApiProperty({ example: 'Toyota', description: 'Manufacturer of the vehicle' })
+  @IsString()
+  @IsNotEmpty()
+  manufacturedBy: string;
+
+  @ApiPropertyOptional({ example: 'Red', description: 'Vehicle color' })
   @IsOptional()
   @IsString()
   vehicleColor?: string;
 
+  @ApiProperty({ example: '2023-12-31', description: 'Vehicle registration expiry date' })
+  @IsNotEmpty()
+  @IsDateString()
+  registrationExpiry: string;
+
+  @ApiPropertyOptional({ example: true, description: 'Is the vehicle active' })
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
+
+  @ApiPropertyOptional({ example: 'vehicle-image.jpg', description: 'Vehicle image' })
+  @IsOptional()
+  @IsString()
+  image?: string;
+
+  @ApiPropertyOptional({ example: 'vehicle-doc.pdf', description: 'Vehicle document' })
+  @IsOptional()
+  @IsString()
+  doc?: string;
+
+  @ApiProperty({ example: 1, description: 'Vehicle group ID' })
+  @IsInt()
+  @IsNotEmpty()
+  vehicleGroupId: number;
+}
+
+export class UpdateVehicleDto {
+  @ApiPropertyOptional({ example: 'XYZ9876', description: 'Updated vehicle registration number' })
+  @IsOptional()
+  @IsString()
+  registrationNo?: string;
+
+  @ApiPropertyOptional({ example: 'Honda Civic', description: 'Updated vehicle name' })
+  @IsOptional()
+  @IsString()
+  vehicleName?: string;
+
+  @ApiPropertyOptional({ example: '2022', description: 'Updated vehicle model' })
+  @IsOptional()
+  @IsString()
+  model?: string;
+
+  @ApiPropertyOptional({ example: 'Y9876543210', description: 'Updated vehicle chassis number' })
+  @IsOptional()
+  @IsString()
+  chasisNo?: string;
+
+  @ApiPropertyOptional({ example: 'EN123456789', description: 'Updated vehicle engine number' })
+  @IsOptional()
+  @IsString()
+  engineNo?: string;
+
+  @ApiPropertyOptional({ example: 'Honda', description: 'Updated vehicle manufacturer' })
+  @IsOptional()
+  @IsString()
+  manufacturedBy?: string;
+
+  @ApiPropertyOptional({ example: 'Blue', description: 'Updated vehicle color' })
+  @IsOptional()
+  @IsString()
+  vehicleColor?: string;
+
+  @ApiPropertyOptional({ example: '2024-12-31', description: 'Updated vehicle registration expiry date' })
   @IsOptional()
   @IsDateString()
   registrationExpiry?: string;
 
+  @ApiPropertyOptional({ example: false, description: 'Updated vehicle active status' })
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 
+  @ApiPropertyOptional({ example: 'updated-vehicle-image.jpg', description: 'Updated vehicle image' })
   @IsOptional()
   @IsString()
   image?: string | null;
 
+  @ApiPropertyOptional({ example: 'updated-vehicle-doc.pdf', description: 'Updated vehicle document' })
   @IsOptional()
   @IsString()
   doc?: string | null;
 
+  @ApiPropertyOptional({ example: 2, description: 'Updated vehicle group ID' })
   @IsOptional()
   @IsInt()
-  vehicleGroupId?: number; 
+  vehicleGroupId?: number;
 }

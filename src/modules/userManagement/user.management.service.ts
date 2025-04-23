@@ -1,8 +1,6 @@
 import {
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
@@ -16,22 +14,42 @@ export class UserManagementService {
   async addUserFeaturePermission(
     userFeaturePermissionData: CreateUserFeaturePermissionDto,
   ) {
+    const { userId, permissions } = userFeaturePermissionData;
+
     try {
-      const featurePermission = userFeaturePermissionData?.permissions?.map(
-        (item) => {
-          return {
-            userId: userFeaturePermissionData?.userId,
-            permissionId: item.permissionId,
-            featureId: item.featureId,
-          };
-        },
-      );
+      await this.prisma.userFeaturePermission.deleteMany({
+        where: { userId },
+      });
+
+      const featurePermission = permissions.map((item) => ({
+        userId,
+        featureId: item.featureId,
+        permissionId: item.permissionId,
+      }));
+
       return await this.prisma.userFeaturePermission.createMany({
         data: featurePermission,
         skipDuplicates: true,
       });
     } catch (error) {
       throw new InternalServerErrorException(messages.data_add_failed);
+    }
+  }
+
+  async getUserPermissions(userId: any) {
+    try {
+      const permissions = await this.prisma.userFeaturePermission.findMany({
+        where: {
+          userId: userId,
+        },
+        include: {
+          feature: true,
+          permission: true,
+        },
+      });
+      return permissions;
+    } catch (error) {
+      throw new InternalServerErrorException(messages.data_not_found);
     }
   }
 }
