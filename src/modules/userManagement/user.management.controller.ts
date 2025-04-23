@@ -1,24 +1,39 @@
 import {
-    Body,
-    Controller,
-    Get,
-    Param,
-    Post,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  NotFoundException,
+  ParseIntPipe
 } from '@nestjs/common';
 import { FileService } from 'src/common/fileUpload/file.service';
 import { CreateUserFeaturePermissionDto } from './user.management.dto';
 import { UserManagementService } from './user.management.service';
+import { messages } from 'src/common/constant';
 
 @Controller('api/usermanagement')
 export class UserManagementController {
-    constructor(
-        private readonly userManagementService: UserManagementService
-    ) { }
+  constructor(private readonly userManagementService: UserManagementService) {}
 
+  @Post('add')
+  create(@Body() createUserManagementDto: CreateUserFeaturePermissionDto) {
+    return this.userManagementService.addUserFeaturePermission(
+      createUserManagementDto,
+    );
+  }
 
-    @Post('add')
-    create(@Body() createUserManagementDto: CreateUserFeaturePermissionDto) {
-        return this.userManagementService.addUserFeaturePermission(createUserManagementDto)
+  @Get('fetch/:userId')
+   async getUserPermissions(@Param('userId', ParseIntPipe) userId: number) {
+    const permissions =
+      await this.userManagementService.getUserPermissions(userId);
+    if (!permissions || permissions.length === 0) {
+      throw new NotFoundException(messages.data_not_found);
     }
-
+    return {
+      success: true,
+      data: permissions,
+      message: messages.fetching_success,
+    };
+  }
 }

@@ -128,14 +128,14 @@ export class UpdateBookingDto {
   @IsNumber()
   totalAmt?: number;
 
-  @ApiPropertyOptional({ example: 'completed', description: 'Updated trip status' })
+  @ApiPropertyOptional({ example: 'Completed', description: 'Updated trip status' })
   @IsOptional()
   @IsString()
   tripStatus?: string;
 }
 
 export class UpdateBookingStatusDto {
-  @ApiProperty({ example: 'cancelled', description: 'New status for the trip' })
+  @ApiProperty({ example: 'Cancelled', description: 'New status for the trip' })
   @IsString()
   tripStatus: string;
 }

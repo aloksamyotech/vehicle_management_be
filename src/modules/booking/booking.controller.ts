@@ -87,6 +87,17 @@ export class BookingController {
     );
   }
 
+  @Get('customer-bookings')
+  async getCustomerBookings(@Query() query: any) {
+    const { customerId, page = 1, limit = 10 } = query;
+
+    return this.bookingService.getBookingsByCustomer(
+      Number(customerId),
+      Number(page),
+      Number(limit),
+    );
+  }
+
   @Put('updateStatus/:id')
   async updateStatus(
     @Param('id', ParseIntPipe) id: number,
