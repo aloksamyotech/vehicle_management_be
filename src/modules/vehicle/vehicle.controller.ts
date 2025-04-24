@@ -10,8 +10,10 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFiles,
+  UseGuards,
 } from '@nestjs/common';
 import { VehicleService } from './vehicle.service';
+import { JwtAuthGuard } from '../auth/auth.guard';
 import { FileService } from 'src/common/fileUpload/file.service';
 import { CreateVehicleDto, UpdateVehicleDto } from './vehicle.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -24,6 +26,7 @@ export class VehicleController {
   ) {}
 
   @Get('fetch')
+  @UseGuards(JwtAuthGuard)
   getAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -40,6 +43,7 @@ export class VehicleController {
   }
 
   @Post('save')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'image', maxCount: 1 },
@@ -80,11 +84,13 @@ export class VehicleController {
   }
 
   @Get('getById/:id')
+  @UseGuards(JwtAuthGuard)
   async getById(@Param('id', ParseIntPipe) id: number) {
     return await this.vehicleService.getById(id);
   }
 
   @Patch('update/:id')
+  @UseGuards(JwtAuthGuard)
   async updateVehicle(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateVehicleDto: UpdateVehicleDto,
@@ -93,6 +99,7 @@ export class VehicleController {
   }
 
   @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard)
   async removeVehicle(@Param('id', ParseIntPipe) id: number) {
     return await this.vehicleService.removeVehicle(id);
   }
