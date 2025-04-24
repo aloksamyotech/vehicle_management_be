@@ -8,15 +8,17 @@ import {
   Delete,
   ParseIntPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PartsService } from './parts.service';
 import { CreatePartsDto, UpdatePartsDto } from './parts.dto';
-
+import { JwtAuthGuard } from '../auth/auth.guard';
 @Controller('api/parts')
 export class PartsController {
   constructor(private readonly partsService: PartsService) {}
-  
+
   @Get('fetch')
+  @UseGuards(JwtAuthGuard)
   getAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -33,16 +35,19 @@ export class PartsController {
   }
 
   @Post('save')
+  @UseGuards(JwtAuthGuard)
   async create(@Body() body: CreatePartsDto) {
     return this.partsService.create(body);
   }
 
   @Get('getById/:id')
+  @UseGuards(JwtAuthGuard)
   async getGroupById(@Param('id', ParseIntPipe) id: number) {
     return await this.partsService.getGroupById(id);
   }
 
   @Patch('update/:id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdatePartsDto,
@@ -51,6 +56,7 @@ export class PartsController {
   }
 
   @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard)
   async removeParts(@Param('id', ParseIntPipe) id: number) {
     return await this.partsService.removeParts(id);
   }

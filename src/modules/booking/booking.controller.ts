@@ -9,7 +9,7 @@ import {
   Delete,
   ParseIntPipe,
   Query,
-  DefaultValuePipe,
+  UseGuards,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import {
@@ -17,12 +17,14 @@ import {
   UpdateBookingDto,
   UpdateBookingStatusDto,
 } from './booking.dto';
+import { JwtAuthGuard } from '../auth/auth.guard';
 
 @Controller('api/booking')
 export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
   @Get('fetch')
+  @UseGuards(JwtAuthGuard)
   getAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -39,16 +41,19 @@ export class BookingController {
   }
 
   @Post('save')
+  @UseGuards(JwtAuthGuard)
   async createBooking(@Body() body: CreateBookingDto) {
     return this.bookingService.createBooking(body);
   }
 
   @Get('getById/:id')
+  @UseGuards(JwtAuthGuard)
   async getById(@Param('id', ParseIntPipe) id: number) {
     return await this.bookingService.getById(id);
   }
 
   @Patch('update/:id')
+  @UseGuards(JwtAuthGuard)
   async updateBooking(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateBookingDto,
@@ -57,11 +62,13 @@ export class BookingController {
   }
 
   @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard)
   async removeBooking(@Param('id', ParseIntPipe) id: number) {
     return await this.bookingService.removeBooking(id);
   }
 
   @Get('/report')
+  @UseGuards(JwtAuthGuard)
   async getVehicleBookings(@Query() query: any) {
     const { vehicleId, startDate, endDate, page = 1, limit = 10 } = query;
 
@@ -75,6 +82,7 @@ export class BookingController {
   }
 
   @Get('driver-bookings')
+  @UseGuards(JwtAuthGuard)
   async getDriverBookings(@Query() query: any) {
     const { driverId, startDate, endDate, page = 1, limit = 10 } = query;
 
@@ -88,6 +96,7 @@ export class BookingController {
   }
 
   @Get('customer-bookings')
+  @UseGuards(JwtAuthGuard)
   async getCustomerBookings(@Query() query: any) {
     const { customerId, page = 1, limit = 10 } = query;
 
@@ -99,6 +108,7 @@ export class BookingController {
   }
 
   @Put('updateStatus/:id')
+  @UseGuards(JwtAuthGuard)
   async updateStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateBookingStatusDto,

@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsBoolean,
   IsNotEmpty,
+  MinLength
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -78,7 +79,7 @@ export class UpdateUserDto {
   @ApiPropertyOptional({ example: 'randomIVstring', description: 'Updated initialization vector for encryption' })
   @IsOptional()
   @IsString()
-  iv: string;
+  iv?: string;
 
   @ApiPropertyOptional({ example: true, description: 'Updated status of the user' })
   @IsOptional()
@@ -94,4 +95,21 @@ export class UpdateCurrencyDto {
   @ApiProperty({ example: '$', description: 'Currency symbol' })
   @IsString()
   currencySymbol: string;
+}
+export class ChangePasswordDto {
+  @ApiProperty({
+    example: 'OldPass123!',
+    description: 'The current password of the user',
+  })
+  @IsString()
+  oldPassword: string;
+
+  @ApiProperty({
+    example: 'NewPass456!',
+    description: 'The new password to be set. Must be at least 6 characters long.',
+    minLength: 6,
+  })
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
 }

@@ -37,7 +37,7 @@ export class FileService {
 
     return { 
       message: messages.file_success, 
-      filePath: filename
+      filePath: `/uploads/${filename}`
     };
   }
 }
