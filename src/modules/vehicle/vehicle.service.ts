@@ -169,23 +169,59 @@ export class VehicleService {
     };
   }
 
-  async updateVehicle(id: number, updateVehicleDto: UpdateVehicleDto) {
-    const existingVehicle = await this.prisma.vehicle.findUnique({
-      where: { id },
-    });
-    if (!existingVehicle) {
-      throw new NotFoundException(messages.data_not_found);
+async updateVehicle(id: number, updateVehicleDto: UpdateVehicleDto) {
+  try {
+    if (updateVehicleDto.registrationNo || updateVehicleDto.chasisNo || updateVehicleDto.engineNo) {
+      const existingVehicles = await this.prisma.vehicle.findFirst({
+        where: {
+          AND: [
+            { id: { not: id } },
+            { isDeleted: false },
+            {
+              OR: [
+                ...(updateVehicleDto.registrationNo ? [{ registrationNo: updateVehicleDto.registrationNo }] : []),
+                ...(updateVehicleDto.chasisNo ? [{ chasisNo: updateVehicleDto.chasisNo }] : []),
+                ...(updateVehicleDto.engineNo ? [{ engineNo: updateVehicleDto.engineNo }] : []),
+              ],
+            },
+          ],
+        },
+      });
+
+      if (existingVehicles) {
+        const duplicateFields: string[] = [];
+        if (existingVehicles.registrationNo === updateVehicleDto.registrationNo) {
+          duplicateFields.push('Registration Number');
+        }
+        if (existingVehicles.chasisNo === updateVehicleDto.chasisNo) {
+          duplicateFields.push('Chassis Number');
+        }
+        if (existingVehicles.engineNo === updateVehicleDto.engineNo) {
+          duplicateFields.push('Engine Number');
+        }
+        throw new ConflictException(`Already exist: ${duplicateFields.join(', ')}.`);
+      }
     }
+
+    const updateData = {
+      ...updateVehicleDto,
+      isActive: updateVehicleDto.isActive !== undefined ? String(updateVehicleDto.isActive) === 'true' : undefined,
+      vehicleGroupId: updateVehicleDto.vehicleGroupId ? Number(updateVehicleDto.vehicleGroupId) : undefined,
+      registrationExpiry: updateVehicleDto.registrationExpiry ? new Date(updateVehicleDto.registrationExpiry) : undefined,
+    };
+
     return await this.prisma.vehicle.update({
       where: { id },
-      data: {
-        ...updateVehicleDto,
-        vehicleGroupId:
-          updateVehicleDto.vehicleGroupId ?? existingVehicle.vehicleGroupId,
-      },
+      data: updateData,
       include: { vehicleGroup: true },
     });
+  } catch (error) {
+    if (error instanceof ConflictException) {
+      throw error;
+    }
+    throw new InternalServerErrorException(messages.data_update_failed);
   }
+}
 
   async removeVehicle(id: number) {
     return await this.prisma.vehicle.update({

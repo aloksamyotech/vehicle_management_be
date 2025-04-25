@@ -11,7 +11,8 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFiles,
-  UseGuards
+  UseGuards,
+  BadRequestException
 } from '@nestjs/common';
 import { DriverService } from './driver.service';
 import { FileService } from 'src/common/fileUpload/file.service';
@@ -23,6 +24,7 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CryptoService } from 'src/common/crypto.service';
 import { JwtAuthGuard } from '../auth/auth.guard';
+import { messages } from 'src/common/constant';
 
 @Controller('api/driver')
 export class DriverController {
@@ -112,24 +114,42 @@ export class DriverController {
       doc?: Express.Multer.File[];
     },
   ) {
+    const existingDriver = await this.driverService.getById(id);
+    if (!existingDriver) {
+      throw new BadRequestException(messages.data_not_found);
+    }
+
     let imagePath: string | undefined;
     let docPath: string | undefined;
 
     if (files?.image?.[0]) {
+      if (existingDriver.image) {
+        this.fileService.deleteFile(existingDriver.image);
+      }
       const imageUpload = this.fileService.handleFileUpload(files.image[0]);
       imagePath = imageUpload.filePath;
     }
 
     if (files?.doc?.[0]) {
+      if (existingDriver.doc) {
+        this.fileService.deleteFile(existingDriver.doc);
+      }
       const docUpload = this.fileService.handleFileUpload(files.doc[0]);
       docPath = docUpload.filePath;
     }
-
-    const updateData = {
-      ...updateDto,
-      image: imagePath || updateDto.image,
-      doc: docPath || updateDto.doc,
-    };
+    const updateData: any = { ...updateDto };
+    if (updateData.age) {
+      updateData.age = parseInt(updateData.age);
+    }
+    if (updateData.totalExp) {
+      updateData.totalExp = parseInt(updateData.totalExp);
+    }
+    if (imagePath) {
+      updateData.image = imagePath;
+    }
+    if (docPath) {
+      updateData.doc = docPath;
+    }
 
     return this.driverService.update(id, updateData);
   }

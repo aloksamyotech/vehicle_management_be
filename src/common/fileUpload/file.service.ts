@@ -5,6 +5,14 @@ import { messages } from '../constant';
 
 @Injectable()
 export class FileService {
+  private readonly uploadsDir = path.join(process.cwd(), 'uploads');
+
+  constructor() {
+    if (!fs.existsSync(this.uploadsDir)) {
+      fs.mkdirSync(this.uploadsDir, { recursive: true });
+    }
+  }
+
   handleFileUpload(file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException(messages.data_not_found);
@@ -20,14 +28,9 @@ export class FileService {
       throw new BadRequestException(messages.too_large);
     }
 
-    const uploadsDir = path.join(process.cwd(), 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const filename = `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`;
-    const filePath = path.join(uploadsDir, filename);
+    const filePath = path.join(this.uploadsDir, filename);
 
     try {
       fs.writeFileSync(filePath, file.buffer);
@@ -37,7 +40,21 @@ export class FileService {
 
     return { 
       message: messages.file_success, 
-      filePath: filename
+      filePath: filename,
+      fullPath: filePath
     };
+  }
+
+  deleteFile(filename: string) {
+    if (!filename) return;
+    
+    const filePath = path.join(this.uploadsDir, filename);
+    if (fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (error) {
+        console.error('Error deleting file:', error);
+      }
+    }
   }
 }
