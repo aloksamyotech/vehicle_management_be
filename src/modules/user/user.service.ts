@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
 import {
@@ -10,6 +11,7 @@ import {
   UpdateUserDto,
   UpdateCurrencyDto,
   UpdateStatusDto,
+  ChangePasswordDto,
 } from './user.dto';
 import { CryptoService } from 'src/common/crypto.service';
 import { messages } from 'src/common/constant';
@@ -33,7 +35,7 @@ export class UserService {
         take,
       }),
       this.prisma.user.count({
-        where: { isDeleted: false , role: 'USER' },
+        where: { isDeleted: false, role: 'USER' },
       }),
     ]);
 
@@ -50,6 +52,28 @@ export class UserService {
 
   async createUser(userData: CreateUserDto) {
     try {
+      const existingDetails = await this.prisma.user.findMany({
+        where: {
+          OR: [{ email: userData.email }, { phone: userData.phone }],
+        },
+      });
+
+      const duplicateFields: string[] = [];
+
+      existingDetails.forEach((existingDetail) => {
+        if (existingDetail.email === userData.email) {
+          duplicateFields.push('Email Address');
+        }
+        if (existingDetail.phone === userData.phone) {
+          duplicateFields.push('Phone No');
+        }
+      });
+
+      if (duplicateFields.length > 0) {
+        const errorMessage = `Already exist: ${duplicateFields.join(', ')}.`;
+        throw new ConflictException(errorMessage);
+      }
+
       const { encryptedText, iv } = this.cryptoService.encrypt(
         userData.password,
       );
@@ -65,6 +89,9 @@ export class UserService {
         },
       });
     } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
       throw new InternalServerErrorException(messages.data_add_failed);
     }
   }
@@ -146,5 +173,26 @@ export class UserService {
       where: { id },
       data: { isActive },
     });
+  }
+
+  async changePassword(id: number, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({ where: { id} });
+    if (!user) throw new NotFoundException(messages.data_not_found);
+
+    const decrypted = this.cryptoService.decrypt(user.password, user.iv);
+    if (dto.oldPassword !== decrypted) {
+      throw new UnauthorizedException(messages.invalid_oldpassword);
+    }
+
+    const { encryptedText, iv } = this.cryptoService.encrypt(dto.newPassword);
+    await this.prisma.user.update({
+      where: { id},
+      data: {
+        password: encryptedText,
+        iv: iv,
+      },
+    });
+
+    return { message: messages.data_update_successful };
   }
 }

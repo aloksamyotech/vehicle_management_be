@@ -150,10 +150,45 @@ export class DriverService {
   }
 
   async update(id: number, updateDto: UpdateDriverDto) {
-    return await this.prisma.driver.update({
-      where: { id },
-      data: updateDto,
-    });
+    try {
+      if (updateDto.licenseNo || updateDto.mobileNo) {
+        const existingDriver = await this.prisma.driver.findFirst({
+          where: {
+            AND: [
+              { id: { not: id } }, 
+              { isDeleted: false },
+              {
+                OR: [
+                  ...(updateDto.licenseNo ? [{ licenseNo: updateDto.licenseNo }] : []),
+                  ...(updateDto.mobileNo ? [{ mobileNo: updateDto.mobileNo }] : []),
+                ],
+              },
+            ],
+          },
+        });
+
+        if (existingDriver) {
+          const duplicateFields: string[] = [];
+          if (existingDriver.licenseNo === updateDto.licenseNo) {
+            duplicateFields.push('License No');
+          }
+          if (existingDriver.mobileNo === updateDto.mobileNo) {
+            duplicateFields.push('Mobile No');
+          }
+          throw new ConflictException(`Already exist: ${duplicateFields.join(', ')}.`);
+        }
+      }
+
+      return await this.prisma.driver.update({
+        where: { id },
+        data: updateDto,
+      });
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(messages.data_update_failed);
+    }
   }
 
   async updateStatus(id: number, statusDto: UpdateStatusDto) {

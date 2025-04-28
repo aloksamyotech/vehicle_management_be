@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { CryptoService } from '../../common/crypto.service';
 import { UserManagementService } from '../userManagement/user.management.service';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
+import { messages } from 'src/common/constant';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,10 @@ export class AuthService {
     const user = await this.userService.findByEmail(email);
 
     if (user && !user.isDeleted) {
+      if (!user.isActive) {
+        throw new UnauthorizedException(messages.account_inactive);
+      }
+
       const decryptedPassword = this.cryptoService.decrypt(
         user.password,
         user.iv,

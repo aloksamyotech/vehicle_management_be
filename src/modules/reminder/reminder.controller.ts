@@ -8,7 +8,9 @@ import {
   Delete,
   ParseIntPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/auth.guard';
 import { ReminderService } from './reminder.service';
 import { CreateReminderDto, UpdateReminderDto } from './reminder.dto';
 
@@ -17,6 +19,7 @@ export class ReminderController {
   constructor(private readonly reminderService: ReminderService) {}
 
   @Get('fetch')
+  @UseGuards(JwtAuthGuard)
   getAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -42,16 +45,19 @@ export class ReminderController {
   }
 
   @Post('save')
+  @UseGuards(JwtAuthGuard)
   async create(@Body() body: CreateReminderDto) {
     return this.reminderService.create(body);
   }
 
   @Get('getById/:id')
+  @UseGuards(JwtAuthGuard)
   async getById(@Param('id', ParseIntPipe) id: number) {
     return await this.reminderService.getById(id);
   }
 
   @Patch('update/:id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateReminderDto,
@@ -59,6 +65,7 @@ export class ReminderController {
     return this.reminderService.update(id, updateDto);
   }
   @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard)
   async removeReminder(@Param('id', ParseIntPipe) id: number) {
     return await this.reminderService.removeReminder(id);
   }

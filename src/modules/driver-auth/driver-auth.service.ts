@@ -17,6 +17,9 @@ export class DriverAuthService {
     const driver = await this.driverService.findByPhone(mobileNo);
     
     if (driver && !driver.isDeleted) {
+      if (!driver.status) {
+        throw new UnauthorizedException(messages.account_inactive);
+      }
       const decryptedPassword = this.cryptoService.decrypt(driver.password, driver.iv);
       if (decryptedPassword === password) {
         const { password, iv, ...result } = driver;

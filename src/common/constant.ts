@@ -5,6 +5,7 @@ export const messages = {
     email_in_use: "This email is already associated with another account.",
     registration_successful: "Registration successful! You can now log in.",
     invalid_email_format: "Please enter a valid email address.",
+    invalid_oldpassword: "Old password is incorrect",
     account_inactive: "Your account is inactive. Please contact the administrator.",
     unauthorized_access: "You do not have permission to perform this action.",
    

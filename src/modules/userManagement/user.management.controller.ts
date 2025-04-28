@@ -5,9 +5,10 @@ import {
   Param,
   Post,
   NotFoundException,
-  ParseIntPipe
+  ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
-import { FileService } from 'src/common/fileUpload/file.service';
+import { JwtAuthGuard } from '../auth/auth.guard';
 import { CreateUserFeaturePermissionDto } from './user.management.dto';
 import { UserManagementService } from './user.management.service';
 import { messages } from 'src/common/constant';
@@ -17,6 +18,7 @@ export class UserManagementController {
   constructor(private readonly userManagementService: UserManagementService) {}
 
   @Post('add')
+  @UseGuards(JwtAuthGuard)
   create(@Body() createUserManagementDto: CreateUserFeaturePermissionDto) {
     return this.userManagementService.addUserFeaturePermission(
       createUserManagementDto,
@@ -24,7 +26,8 @@ export class UserManagementController {
   }
 
   @Get('fetch/:userId')
-   async getUserPermissions(@Param('userId', ParseIntPipe) userId: number) {
+  @UseGuards(JwtAuthGuard)
+  async getUserPermissions(@Param('userId', ParseIntPipe) userId: number) {
     const permissions =
       await this.userManagementService.getUserPermissions(userId);
     if (!permissions || permissions.length === 0) {
