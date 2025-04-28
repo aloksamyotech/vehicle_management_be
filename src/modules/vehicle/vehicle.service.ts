@@ -48,7 +48,7 @@ export class VehicleService {
       }),
     ]);
 
-    const BASE_URL = 'http://localhost:7600';
+    const BASE_URL = process.env.image_url;
 
     const data = vehicles.map((vehicle) => ({
       ...vehicle,

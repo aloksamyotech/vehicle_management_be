@@ -54,7 +54,7 @@ export class DriverService {
       }),
     ]);
 
-    const BASE_URL = 'http://localhost:7600';
+    const BASE_URL = process.env.image_url;
 
     const data = drivers.map((driver) => ({
       ...driver,
