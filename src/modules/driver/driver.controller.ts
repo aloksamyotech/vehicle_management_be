@@ -25,7 +25,9 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CryptoService } from 'src/common/crypto.service';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { messages } from 'src/common/constant';
+import { ApiBearerAuth} from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('api/driver')
 export class DriverController {
   constructor(

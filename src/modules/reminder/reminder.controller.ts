@@ -13,7 +13,9 @@ import {
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { ReminderService } from './reminder.service';
 import { CreateReminderDto, UpdateReminderDto } from './reminder.dto';
+import { ApiBearerAuth} from '@nestjs/swagger';
 
+@ApiBearerAuth() 
 @Controller('api/reminder')
 export class ReminderController {
   constructor(private readonly reminderService: ReminderService) {}

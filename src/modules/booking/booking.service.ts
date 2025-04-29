@@ -397,4 +397,31 @@ export class BookingService {
       },
     };
   }
+
+  async getTodayDriverBookings(driverId: number) {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const bookings = await this.prisma.booking.findMany({
+      where: {
+        isDeleted: false,
+        driverId,
+        tripStartDate: {
+          gte: todayStart,
+          lte: todayEnd,
+        },        
+      },
+      orderBy: {
+        tripStartDate: 'asc',
+      },
+      include: {
+        vehicle: { select: { id: true, vehicleName: true } },
+        customer: { select: { id: true, name: true, email: true } },
+      },
+    });
+    return bookings;
+  }
 }

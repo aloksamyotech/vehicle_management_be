@@ -20,6 +20,9 @@ import {
   UpdateCurrencyDto,
   UpdateStatusDto,
 } from './user.dto';
+import { ApiBearerAuth} from '@nestjs/swagger';
+
+@ApiBearerAuth() 
 @Controller('api/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

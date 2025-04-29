@@ -13,6 +13,9 @@ import {
 import { PartsService } from './parts.service';
 import { CreatePartsDto, UpdatePartsDto } from './parts.dto';
 import { JwtAuthGuard } from '../auth/auth.guard';
+import { ApiBearerAuth} from '@nestjs/swagger';
+
+@ApiBearerAuth() 
 @Controller('api/parts')
 export class PartsController {
   constructor(private readonly partsService: PartsService) {}

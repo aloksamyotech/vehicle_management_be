@@ -54,7 +54,7 @@ export class DriverService {
       }),
     ]);
 
-    const BASE_URL = 'http://localhost:7600';
+    const BASE_URL = process.env.image_url;
 
     const data = drivers.map((driver) => ({
       ...driver,
@@ -141,14 +141,30 @@ export class DriverService {
 
   async getById(id: number) {
     const result = await this.prisma.driver.findUnique({
-      where: { id, isDeleted: false },
+      where: { id },
     });
-    if (!result) {
+  
+    if (!result || result.isDeleted) {
       throw new NotFoundException(messages.data_not_found);
     }
-    return result;
+  
+    const BASE_URL = process.env.image_url;
+  
+    const imageUrl = result.image
+      ? `${BASE_URL}/file/stream/${result.image.split('/').pop()}`
+      : null;
+  
+    const docUrl = result.doc
+      ? `${BASE_URL}/file/stream/${result.doc.split('/').pop()}`
+      : null;
+  
+    return {
+      ...result,
+      imageUrl,
+      docUrl,
+    };
   }
-
+  
   async update(id: number, updateDto: UpdateDriverDto) {
     try {
       if (updateDto.licenseNo || updateDto.mobileNo) {
