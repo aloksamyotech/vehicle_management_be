@@ -16,7 +16,9 @@ import {
   UpdateMaintenanceStatusDto,
 } from './maintenance.dto';
 import { JwtAuthGuard } from '../auth/auth.guard';
+import { ApiBearerAuth} from '@nestjs/swagger';
 
+@ApiBearerAuth() 
 @Controller('api/maintenance')
 export class MaintenanceController {
   constructor(private readonly maintenanceService: MaintenanceService) {}

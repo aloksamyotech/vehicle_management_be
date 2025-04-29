@@ -11,7 +11,9 @@ import {
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './payment.dto';
 import { JwtAuthGuard } from '../auth/auth.guard';
+import { ApiBearerAuth} from '@nestjs/swagger';
 
+@ApiBearerAuth() 
 @Controller('api/payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}

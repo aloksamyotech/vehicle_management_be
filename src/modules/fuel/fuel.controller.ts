@@ -13,6 +13,9 @@ import {
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { FuelService } from './fuel.service';
 import { CreateFuelDto, UpdateFuelDto } from './fuel.dto';
+import { ApiBearerAuth} from '@nestjs/swagger';
+
+@ApiBearerAuth() 
 @Controller('api/fuel')
 export class FuelController {
   constructor(private readonly fuelService: FuelService) {}

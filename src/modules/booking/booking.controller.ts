@@ -18,7 +18,9 @@ import {
   UpdateBookingStatusDto,
 } from './booking.dto';
 import { JwtAuthGuard } from '../auth/auth.guard';
+import { ApiBearerAuth} from '@nestjs/swagger';
 
+@ApiBearerAuth() 
 @Controller('api/booking')
 export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
@@ -114,5 +116,13 @@ export class BookingController {
     @Body() updateDto: UpdateBookingStatusDto,
   ) {
     return this.bookingService.updateBookingStatus(id, updateDto);
+  }
+
+  @Get('todayBookings/:driverId')
+  @UseGuards(JwtAuthGuard)
+  async getTodayDriverBookings(
+    @Param('driverId', ParseIntPipe) driverId: number,
+  ) {
+    return this.bookingService.getTodayDriverBookings(driverId);
   }
 }

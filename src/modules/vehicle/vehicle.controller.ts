@@ -19,7 +19,9 @@ import { FileService } from 'src/common/fileUpload/file.service';
 import { CreateVehicleDto, UpdateVehicleDto } from './vehicle.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { messages } from 'src/common/constant';
+import { ApiBearerAuth} from '@nestjs/swagger';
 
+@ApiBearerAuth() 
 @Controller('api/vehicle')
 export class VehicleController {
   constructor(

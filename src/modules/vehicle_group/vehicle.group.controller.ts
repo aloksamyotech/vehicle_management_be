@@ -16,7 +16,9 @@ import {
   CreateVehicleGroupDto,
   UpdateVehicleGroupDto,
 } from './vehicle.group.dto';
+import { ApiBearerAuth} from '@nestjs/swagger';
 
+@ApiBearerAuth() 
 @Controller('api/vehicle-group')
 export class VehicleGroupController {
   constructor(private readonly vehicleGroupService: VehicleGroupService) {}

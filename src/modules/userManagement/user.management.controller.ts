@@ -12,7 +12,9 @@ import { JwtAuthGuard } from '../auth/auth.guard';
 import { CreateUserFeaturePermissionDto } from './user.management.dto';
 import { UserManagementService } from './user.management.service';
 import { messages } from 'src/common/constant';
+import { ApiBearerAuth} from '@nestjs/swagger';
 
+@ApiBearerAuth() 
 @Controller('api/usermanagement')
 export class UserManagementController {
   constructor(private readonly userManagementService: UserManagementService) {}
