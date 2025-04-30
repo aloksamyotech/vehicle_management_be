@@ -18,7 +18,7 @@ import {
   UpdateUserDto,
   ChangePasswordDto,
   UpdateCurrencyDto,
-  UpdateStatusDto,
+  UpdateUserStatusDto,
 } from './user.dto';
 import { ApiBearerAuth} from '@nestjs/swagger';
 
@@ -81,7 +81,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   async updateStatus(
     @Param('id', ParseIntPipe) id: number,
-    @Body() statusDto: UpdateStatusDto,
+    @Body() statusDto: UpdateUserStatusDto,
   ) {
     return this.userService.updateStatus(Number(id), statusDto);
   }

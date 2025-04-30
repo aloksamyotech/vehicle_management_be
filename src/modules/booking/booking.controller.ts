@@ -125,4 +125,12 @@ export class BookingController {
   ) {
     return this.bookingService.getTodayDriverBookings(driverId);
   }
+
+  @Get('allBookings/:driverId')
+  @UseGuards(JwtAuthGuard)
+  async getAllDriverBookings(
+    @Param('driverId', ParseIntPipe) driverId: number,
+  ) {
+    return this.bookingService.getAllDriverBookings(driverId);
+  }
 }

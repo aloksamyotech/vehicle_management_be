@@ -412,7 +412,7 @@ export class BookingService {
         tripStartDate: {
           gte: todayStart,
           lte: todayEnd,
-        },        
+        },
       },
       orderBy: {
         tripStartDate: 'asc',
@@ -422,6 +422,24 @@ export class BookingService {
         customer: { select: { id: true, name: true, email: true } },
       },
     });
+    return bookings;
+  }
+
+  async getAllDriverBookings(driverId: number) {
+    const bookings = await this.prisma.booking.findMany({
+      where: {
+        isDeleted: false,
+        driverId,
+      },
+      orderBy: {
+        tripStartDate: 'asc',
+      },
+      include: {
+        vehicle: { select: { id: true, vehicleName: true } },
+        customer: { select: { id: true, name: true, email: true } },
+      },
+    });
+
     return bookings;
   }
 }

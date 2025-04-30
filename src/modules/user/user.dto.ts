@@ -44,7 +44,7 @@ export class CreateUserDto {
   isActive?: boolean;
 }
 
-export class UpdateStatusDto {
+export class UpdateUserStatusDto {
   @ApiPropertyOptional({ example: false, description: 'Updated status of the user' })
   @IsBoolean()
   isActive?: boolean;
