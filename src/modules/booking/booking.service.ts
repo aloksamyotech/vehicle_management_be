@@ -418,8 +418,8 @@ export class BookingService {
         tripStartDate: 'asc',
       },
       include: {
-        vehicle: { select: { id: true, vehicleName: true } },
-        customer: { select: { id: true, name: true, email: true } },
+        vehicle: { select: { id: true, vehicleName: true, registrationNo: true } },
+        customer: { select: { id: true, name: true, email: true , mobileNo: true} },
       },
     });
     return bookings;
@@ -435,8 +435,8 @@ export class BookingService {
         tripStartDate: 'asc',
       },
       include: {
-        vehicle: { select: { id: true, vehicleName: true } },
-        customer: { select: { id: true, name: true, email: true } },
+        vehicle: { select: { id: true, vehicleName: true, registrationNo: true } },
+        customer: { select: { id: true, name: true, email: true , mobileNo: true} },
       },
     });
 
