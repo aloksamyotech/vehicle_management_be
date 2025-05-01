@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   ConflictException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
@@ -10,6 +11,7 @@ import {
   CreateDriverDto,
   UpdateDriverDto,
   UpdateStatusDto,
+  ChangeDriverPasswordDto,
 } from './driver.dto';
 import { messages } from 'src/common/constant';
 import { CryptoService } from 'src/common/crypto.service';
@@ -143,40 +145,44 @@ export class DriverService {
     const result = await this.prisma.driver.findUnique({
       where: { id },
     });
-  
+
     if (!result || result.isDeleted) {
       throw new NotFoundException(messages.data_not_found);
     }
-  
+
     const BASE_URL = process.env.image_url;
-  
+
     const imageUrl = result.image
       ? `${BASE_URL}/file/stream/${result.image.split('/').pop()}`
       : null;
-  
+
     const docUrl = result.doc
       ? `${BASE_URL}/file/stream/${result.doc.split('/').pop()}`
       : null;
-  
+
     return {
       ...result,
       imageUrl,
       docUrl,
     };
   }
-  
+
   async update(id: number, updateDto: UpdateDriverDto) {
     try {
       if (updateDto.licenseNo || updateDto.mobileNo) {
         const existingDriver = await this.prisma.driver.findFirst({
           where: {
             AND: [
-              { id: { not: id } }, 
+              { id: { not: id } },
               { isDeleted: false },
               {
                 OR: [
-                  ...(updateDto.licenseNo ? [{ licenseNo: updateDto.licenseNo }] : []),
-                  ...(updateDto.mobileNo ? [{ mobileNo: updateDto.mobileNo }] : []),
+                  ...(updateDto.licenseNo
+                    ? [{ licenseNo: updateDto.licenseNo }]
+                    : []),
+                  ...(updateDto.mobileNo
+                    ? [{ mobileNo: updateDto.mobileNo }]
+                    : []),
                 ],
               },
             ],
@@ -191,7 +197,9 @@ export class DriverService {
           if (existingDriver.mobileNo === updateDto.mobileNo) {
             duplicateFields.push('Mobile No');
           }
-          throw new ConflictException(`Already exist: ${duplicateFields.join(', ')}.`);
+          throw new ConflictException(
+            `Already exist: ${duplicateFields.join(', ')}.`,
+          );
         }
       }
 
@@ -227,5 +235,26 @@ export class DriverService {
     return this.prisma.driver.findUnique({
       where: { mobileNo },
     });
+  }
+
+  async changePassword(id: number, dto: ChangeDriverPasswordDto) {
+    const driver = await this.prisma.driver.findUnique({ where: { id } });
+    if (!driver) throw new NotFoundException(messages.data_not_found);
+
+    const decrypted = this.cryptoService.decrypt(driver.password, driver.iv);
+    if (dto.oldPassword !== decrypted) {
+      throw new UnauthorizedException(messages.invalid_oldpassword);
+    }
+
+    const { encryptedText, iv } = this.cryptoService.encrypt(dto.newPassword);
+    await this.prisma.driver.update({
+      where: { id },
+      data: {
+        password: encryptedText,
+        iv: iv,
+      },
+    });
+
+    return { message: messages.data_update_successful };
   }
 }

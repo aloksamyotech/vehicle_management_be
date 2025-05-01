@@ -18,6 +18,7 @@ import { DriverService } from './driver.service';
 import { FileService } from 'src/common/fileUpload/file.service';
 import {
   CreateDriverDto,
+  ChangeDriverPasswordDto,
   UpdateDriverDto,
   UpdateStatusDto,
 } from './driver.dto';
@@ -170,4 +171,10 @@ export class DriverController {
   async removeVehicle(@Param('id', ParseIntPipe) id: number) {
     return await this.driverService.removeDriver(id);
   }
+
+    @Patch('change-password/:id')
+    @UseGuards(JwtAuthGuard)
+    async changePassword( @Param('id', ParseIntPipe) id: number, @Body() dto: ChangeDriverPasswordDto) {
+      return this.driverService.changePassword(Number(id), dto);
+    }
 }

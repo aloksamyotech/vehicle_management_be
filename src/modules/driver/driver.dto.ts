@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsEnum,
   IsDateString,
+  MinLength
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CustomStatus } from '@prisma/client';
@@ -164,4 +165,21 @@ export class UpdateStatusDto {
   @IsEnum(CustomStatus)
   @IsNotEmpty()
   status: CustomStatus;
+}
+export class ChangeDriverPasswordDto {
+  @ApiProperty({
+    example: 'OldPass123!',
+    description: 'The current password of the driver',
+  })
+  @IsString()
+  oldPassword: string;
+
+  @ApiProperty({
+    example: 'NewPass456!',
+    description: 'The new password to be set. Must be at least 6 characters long.',
+    minLength: 6,
+  })
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
 }
