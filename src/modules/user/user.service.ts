@@ -10,7 +10,7 @@ import {
   CreateUserDto,
   UpdateUserDto,
   UpdateCurrencyDto,
-  UpdateStatusDto,
+  UpdateUserStatusDto,
   ChangePasswordDto,
 } from './user.dto';
 import { CryptoService } from 'src/common/crypto.service';
@@ -166,7 +166,7 @@ export class UserService {
     });
   }
 
-  async updateStatus(id: number, statusDto: UpdateStatusDto) {
+  async updateStatus(id: number, statusDto: UpdateUserStatusDto) {
     const { isActive } = statusDto;
     await this.prisma.user.findUnique({ where: { id } });
     return await this.prisma.user.update({
