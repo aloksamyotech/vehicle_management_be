@@ -163,6 +163,22 @@ model Booking {
 
   payments Payment[]
   tripExpenses TripExpense[]
+  checkpoints  Checkpoint[]
+}
+
+model Checkpoint {
+  id          Int      @id @default(autoincrement())
+  bookingId   Int
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  cityName    String
+  locationUrl String?
+  isActive    Boolean  @default(false)
+  isDeleted   Boolean  @default(false)
+  order       Int      
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([bookingId, cityName])
 }
 
 model Payment {

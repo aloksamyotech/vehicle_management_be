@@ -18,9 +18,11 @@ import {
   UpdateBookingStatusDto,
 } from './booking.dto';
 import { JwtAuthGuard } from '../auth/auth.guard';
-import { ApiBearerAuth} from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { CreateBookingWithCheckpointsDto } from './checkpoints.dto';
+import { UpdateCheckpointDto } from './checkpoints.dto';
 
-@ApiBearerAuth() 
+@ApiBearerAuth()
 @Controller('api/booking')
 export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
@@ -132,5 +134,31 @@ export class BookingController {
     @Param('driverId', ParseIntPipe) driverId: number,
   ) {
     return this.bookingService.getAllDriverBookings(driverId);
+  }
+
+  @Post(':id/checkpoints')
+  @UseGuards(JwtAuthGuard)
+  async addCheckpoints(
+    @Param('id', ParseIntPipe) bookingId: number,
+    @Body() dto: CreateBookingWithCheckpointsDto,
+  ) {
+    return this.bookingService.addCheckpointsToBooking(bookingId, dto);
+  }
+
+  @Get('checkpoints/:bookingId')
+  @UseGuards(JwtAuthGuard)
+  async getCheckpointsByBookingId(
+    @Param('bookingId', ParseIntPipe) bookingId: number,
+  ) {
+    return this.bookingService.getCheckpointsByBookingId(bookingId);
+  }
+
+  @Patch('checkpoints/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateCheckpoint(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCheckpointDto: UpdateCheckpointDto,
+  ) {
+    return this.bookingService.updateCheckpoint(id, updateCheckpointDto);
   }
 }

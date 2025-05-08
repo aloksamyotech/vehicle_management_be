@@ -14,6 +14,8 @@ import {
 } from './booking.dto';
 import { NotificationService } from 'src/common/notification.service';
 import { messages } from 'src/common/constant';
+import { CreateBookingWithCheckpointsDto } from './checkpoints.dto';
+import { UpdateCheckpointDto } from './checkpoints.dto';
 @Injectable()
 export class BookingService {
   constructor(
@@ -401,10 +403,10 @@ export class BookingService {
   async getTodayDriverBookings(driverId: number) {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-  
+
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
-  
+
     const bookings = await this.prisma.booking.findMany({
       where: {
         isDeleted: false,
@@ -428,14 +430,17 @@ export class BookingService {
         tripStartDate: 'asc',
       },
       include: {
-        vehicle: { select: { id: true, vehicleName: true, registrationNo: true } },
-        customer: { select: { id: true, name: true, email: true, mobileNo: true } },
+        vehicle: {
+          select: { id: true, vehicleName: true, registrationNo: true },
+        },
+        customer: {
+          select: { id: true, name: true, email: true, mobileNo: true },
+        },
       },
     });
-  
+
     return bookings;
   }
-  
 
   async getAllDriverBookings(driverId: number) {
     const bookings = await this.prisma.booking.findMany({
@@ -447,11 +452,79 @@ export class BookingService {
         tripStartDate: 'asc',
       },
       include: {
-        vehicle: { select: { id: true, vehicleName: true, registrationNo: true } },
-        customer: { select: { id: true, name: true, email: true , mobileNo: true} },
+        vehicle: {
+          select: { id: true, vehicleName: true, registrationNo: true },
+        },
+        customer: {
+          select: { id: true, name: true, email: true, mobileNo: true },
+        },
       },
     });
 
     return bookings;
+  }
+
+  async addCheckpointsToBooking(
+    bookingId: number,
+    dto: CreateBookingWithCheckpointsDto,
+  ) {
+    const existingCityNames = await this.prisma.checkpoint.findMany({
+      where: { bookingId },
+      select: { cityName: true },
+    });
+  
+    const existingCityNamesSet = new Set(existingCityNames.map(checkpoint => checkpoint.cityName));
+  
+    const checkpointData = dto.checkpoints?.map((checkpoint, index) => {
+      if (existingCityNamesSet.has(checkpoint.cityName)) {
+        throw new ConflictException(`City name '${checkpoint.cityName}' already exists for this booking.`);
+      }
+  
+      return {
+        bookingId,
+        cityName: checkpoint.cityName,
+        isActive: checkpoint.isActive,
+        order: existingCityNames.length + index + 1,
+      };
+    });
+    return await this.prisma.checkpoint.createMany({ data: checkpointData });
+  }
+  
+
+  async getCheckpointsByBookingId(bookingId: number) {
+    const checkpoints = await this.prisma.checkpoint.findMany({
+      where: { bookingId , isDeleted: false },
+      orderBy: { order: 'asc' },
+    });
+
+    if (!checkpoints || checkpoints.length === 0) {
+      throw new NotFoundException(
+        `No checkpoints found for bookingId: ${bookingId}`,
+      );
+    }
+
+    return checkpoints;
+  }
+
+  async updateCheckpoint(id: number, updateDto: UpdateCheckpointDto) {
+    const existingCheckpoint = await this.prisma.checkpoint.findUnique({
+      where: { id },
+    });
+
+    if (!existingCheckpoint) {
+      throw new NotFoundException(`Checkpoint with ID ${id} not found`);
+    }
+
+    const updatedCheckpoint = await this.prisma.checkpoint.update({
+      where: { id },
+      data: {
+        locationUrl: updateDto.locationUrl ?? existingCheckpoint.locationUrl,
+        isActive: updateDto.isActive ?? existingCheckpoint.isActive,
+      },
+    });
+
+    return {
+      data: updatedCheckpoint,
+    };
   }
 }
