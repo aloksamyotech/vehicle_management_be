@@ -92,6 +92,16 @@ model Driver {
 
   fuelEntries  Fuel[] 
   bookings Booking[]
+  helpSupports HelpSupport[]
+}
+
+model HelpSupport {
+  id          Int      @id @default(autoincrement())
+  subject     String
+  description String
+  driverId    Int
+  driver      Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
 }
 
 enum CustomStatus {

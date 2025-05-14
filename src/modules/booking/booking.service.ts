@@ -411,20 +411,12 @@ export class BookingService {
       where: {
         isDeleted: false,
         driverId,
-        OR: [
-          {
-            tripStartDate: {
-              gte: todayStart,
-              lte: todayEnd,
-            },
-          },
-          {
-            tripEndDate: {
-              gte: todayStart,
-              lte: todayEnd,
-            },
-          },
-        ],
+        tripStartDate: {
+          lte: todayEnd,
+        },
+        tripEndDate: {
+          gte: todayStart,
+        },
       },
       orderBy: {
         tripStartDate: 'asc',
@@ -472,14 +464,18 @@ export class BookingService {
       where: { bookingId },
       select: { cityName: true },
     });
-  
-    const existingCityNamesSet = new Set(existingCityNames.map(checkpoint => checkpoint.cityName));
-  
+
+    const existingCityNamesSet = new Set(
+      existingCityNames.map((checkpoint) => checkpoint.cityName),
+    );
+
     const checkpointData = dto.checkpoints?.map((checkpoint, index) => {
       if (existingCityNamesSet.has(checkpoint.cityName)) {
-        throw new ConflictException(`City name '${checkpoint.cityName}' already exists for this booking.`);
+        throw new ConflictException(
+          `City name '${checkpoint.cityName}' already exists for this booking.`,
+        );
       }
-  
+
       return {
         bookingId,
         cityName: checkpoint.cityName,
@@ -489,11 +485,10 @@ export class BookingService {
     });
     return await this.prisma.checkpoint.createMany({ data: checkpointData });
   }
-  
 
   async getCheckpointsByBookingId(bookingId: number) {
     const checkpoints = await this.prisma.checkpoint.findMany({
-      where: { bookingId , isDeleted: false },
+      where: { bookingId, isDeleted: false },
       orderBy: { order: 'asc' },
     });
 

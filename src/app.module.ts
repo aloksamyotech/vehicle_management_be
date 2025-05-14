@@ -23,8 +23,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { DriverAuthModule } from './modules/driver-auth/driver-auth.module';
 import { FileModule } from './common/fileUpload/file.module';
 import { UserManagementModule } from './modules/userManagement/user.management.module';
+import { HelpSupportModule } from './modules/help-support/help-support.module';
 @Module({
   imports: [
+    HelpSupportModule,
     UserModule,
     VehicleGroupModule,
     VehicleModule,
