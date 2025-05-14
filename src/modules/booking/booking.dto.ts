@@ -135,7 +135,7 @@ export class UpdateBookingDto {
 }
 
 export class UpdateBookingStatusDto {
-  @ApiProperty({ example: 'Cancelled', description: 'New status for the trip' })
+  @ApiProperty({ example: 'Cancelled || Ongoing || Completed || YetToStart', description: 'New status for the trip' })
   @IsString()
   tripStatus: string;
 }

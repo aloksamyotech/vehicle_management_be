@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
+import { BookingNotificationService } from './bookingNotification.service';
 import {
   CreateBookingDto,
   UpdateBookingDto,
@@ -25,7 +26,10 @@ import { UpdateCheckpointDto } from './checkpoints.dto';
 @ApiBearerAuth()
 @Controller('api/booking')
 export class BookingController {
-  constructor(private readonly bookingService: BookingService) {}
+  constructor(
+    private readonly bookingService: BookingService,
+    private readonly bookingNotificationService: BookingNotificationService,
+  ) {}
 
   @Get('fetch')
   @UseGuards(JwtAuthGuard)
@@ -160,5 +164,17 @@ export class BookingController {
     @Body() updateCheckpointDto: UpdateCheckpointDto,
   ) {
     return this.bookingService.updateCheckpoint(id, updateCheckpointDto);
+  }
+
+  @Get('bookingNotification/:driverId')
+  @UseGuards(JwtAuthGuard)
+  getNotificationsByDriver(@Param('driverId', ParseIntPipe) driverId: number) {
+    return this.bookingNotificationService.getNotificationsByDriver(driverId);
+  }
+
+  @Patch('read/:id')
+  @UseGuards(JwtAuthGuard)
+  markNotificationAsRead(@Param('id', ParseIntPipe) id: number) {
+    return this.bookingNotificationService.markNotificationAsRead(id);
   }
 }

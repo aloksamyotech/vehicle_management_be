@@ -13,6 +13,7 @@ import {
   UpdateBookingStatusDto,
 } from './booking.dto';
 import { NotificationService } from 'src/common/notification.service';
+import { BookingNotificationService } from './bookingNotification.service';
 import { messages } from 'src/common/constant';
 import { CreateBookingWithCheckpointsDto } from './checkpoints.dto';
 import { UpdateCheckpointDto } from './checkpoints.dto';
@@ -21,6 +22,7 @@ export class BookingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationService: NotificationService,
+    private readonly bookingNotificationService: BookingNotificationService,
   ) {}
 
   async getAll(page?: number, limit?: number) {
@@ -154,6 +156,13 @@ export class BookingService {
         driver: true,
         vehicle: true,
       },
+    });
+
+    await this.bookingNotificationService.createNotification({
+      driverId: driverId,
+      bookingId: booking.id,
+      message: 'A new booking has been assigned to you.',
+      type: 'booking',
     });
 
     try {
@@ -335,6 +344,31 @@ export class BookingService {
     };
   }
 
+  // async updateBookingStatus(
+  //   bookingId: number,
+  //   updateDto: UpdateBookingStatusDto,
+  // ) {
+  //   const { tripStatus } = updateDto;
+
+  //   const existingBooking = await this.prisma.booking.findUnique({
+  //     where: { id: bookingId },
+  //   });
+
+  //   if (!existingBooking) {
+  //     throw new NotFoundException(messages.data_not_found);
+  //   }
+
+  //   const updatedBooking = await this.prisma.booking.update({
+  //     where: { id: bookingId },
+  //     data: {
+  //       tripStatus,
+  //       updatedAt: new Date(),
+  //     },
+  //   });
+
+  //   return updatedBooking;
+  // }
+
   async updateBookingStatus(
     bookingId: number,
     updateDto: UpdateBookingStatusDto,
@@ -356,6 +390,22 @@ export class BookingService {
         updatedAt: new Date(),
       },
     });
+
+    let message = '';
+    if (tripStatus === 'Cancelled') {
+      message = 'Booking has been cancelled.';
+    } else if (tripStatus === 'Completed') {
+      message = 'Booking has been completed.';
+    }
+
+    if (message && updatedBooking.driverId) {
+      await this.bookingNotificationService.createNotification({
+        driverId: updatedBooking.driverId,
+        bookingId: updatedBooking.id,
+        message,
+        type: tripStatus,
+      });
+    }
 
     return updatedBooking;
   }
