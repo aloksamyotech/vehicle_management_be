@@ -344,31 +344,6 @@ export class BookingService {
     };
   }
 
-  // async updateBookingStatus(
-  //   bookingId: number,
-  //   updateDto: UpdateBookingStatusDto,
-  // ) {
-  //   const { tripStatus } = updateDto;
-
-  //   const existingBooking = await this.prisma.booking.findUnique({
-  //     where: { id: bookingId },
-  //   });
-
-  //   if (!existingBooking) {
-  //     throw new NotFoundException(messages.data_not_found);
-  //   }
-
-  //   const updatedBooking = await this.prisma.booking.update({
-  //     where: { id: bookingId },
-  //     data: {
-  //       tripStatus,
-  //       updatedAt: new Date(),
-  //     },
-  //   });
-
-  //   return updatedBooking;
-  // }
-
   async updateBookingStatus(
     bookingId: number,
     updateDto: UpdateBookingStatusDto,
