@@ -23,8 +23,13 @@ import { AuthModule } from './modules/auth/auth.module';
 import { DriverAuthModule } from './modules/driver-auth/driver-auth.module';
 import { FileModule } from './common/fileUpload/file.module';
 import { UserManagementModule } from './modules/userManagement/user.management.module';
+import { ConfigModule } from '@nestjs/config';
+import { LocationModule } from './modules/location/location.module';
 @Module({
   imports: [
+      ConfigModule.forRoot({
+      isGlobal: true, 
+    }),
     UserModule,
     VehicleGroupModule,
     VehicleModule,
@@ -43,7 +48,8 @@ import { UserManagementModule } from './modules/userManagement/user.management.m
     AuthModule,
     DriverAuthModule,
     FileModule,
-    UserManagementModule
+    UserManagementModule,
+    LocationModule
   ],
   controllers: [AppController],
   providers: [
